@@ -165,7 +165,7 @@
 const route = useRoute()
 const isDark = useDark()
 const uploadImgFileName = ref('')
-const articleData = ref({
+const articleData = reactive({
   title: '',
   content: '',
   cover: '',
@@ -175,17 +175,19 @@ const articleData = ref({
 const { data } = await useFetch(`/api/articles/${route.query.id}`)
 
 onMounted(() => {
-  articleData.value = data.value
+  Object.assign(articleData, data.value)
+  // console.log(articleData)
 })
 
 const handleSubmit = async () => {
   // 使用 FormData 包裝所有資料，包含上傳的圖片檔案
   const formData = new FormData()
-  formData.append('title', articleData.value.title)
-  formData.append('content', articleData.value.content)
-  formData.append('cover', articleData.value.cover)
-  if (articleData.value.img) {
-    formData.append('img', articleData.value.img)
+  formData.append('title', articleData.title)
+  formData.append('content', articleData.content)
+  formData.append('cover', articleData.cover)
+  formData.append('img_filename', uploadImgFileName.value)
+  if (articleData.img) {
+    formData.append('img', articleData.img)
   }
 
   // for (const pair of formData.entries()) {
@@ -227,9 +229,9 @@ const handleUpload = () => {
     // 若使用 TypeScript，可寫：(event.target as HTMLInputElement)
     const file = event.target.files ? event.target.files[0] : null
     if (file) {
-      articleData.value.img = file
-      uploadImgFileName.value = articleData.value.img.name
-      // console.log('選擇的檔案：', articleData.value.img)
+      articleData.img = file
+      uploadImgFileName.value = articleData.img.name
+      // console.log('選擇的檔案：', articleData.img)
     }
   })
 

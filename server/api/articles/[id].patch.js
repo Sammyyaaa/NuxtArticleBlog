@@ -47,10 +47,16 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  const changeImgSQL =
+    'UPDATE "article" SET "title" = $1, "content" = $2, "cover" = $3, "img" = $4, "img_filename" = $5, "updated_at" = NOW() WHERE "id" = $6 RETURNING *'
+  const changeImgList = [title, content, cover, img, imgFilename, articleId]
+  const noChangeImgSQL =
+    'UPDATE "article" SET "title" = $1, "content" = $2, "cover" = $3, "updated_at" = NOW() WHERE "id" = $4 RETURNING *'
+  const noChangeImgList = [title, content, cover, articleId]
   const articleRecord = await pool
     .query(
-      'UPDATE "article" SET "title" = $1, "content" = $2, "cover" = $3, "img" = $4, "img_filename" = $5, "updated_at" = NOW() WHERE "id" = $6 RETURNING *',
-      [title, content, cover, img, imgFilename, articleId]
+      imgFilename ? changeImgSQL : noChangeImgSQL,
+      imgFilename ? changeImgList : noChangeImgList
     )
     .then((result) => {
       if (result.rowCount === 1) {

@@ -4,8 +4,8 @@
     :class="{ 'bg-gray-800': isDark }"
   >
     <!-- 加載中 -->
-    <div v-if="pending">
-      <Icon class="h-6 w-6 text-gray-500" name="eos-Icons:loading" />
+    <div v-if="!article.title" class="pt-6">
+      <Icon class="h-12 w-12 text-gray-300" name="eos-icons:bubble-loading" />
     </div>
     <template v-else>
       <!-- 錯誤提示 -->
@@ -15,9 +15,10 @@
       </div>
       <!-- 顯示文章內容 -->
       <div
-        v-else-if="article"
+        v-else-if="article.title"
         class="mb-8 flex w-full flex-col justify-center md:max-w-3xl px-6 md:px-0"
       >
+        <!-- 只有圖片網址 -->
         <div v-if="article.cover && !imageUrl" class="mt-4 flex justify-center">
           <img
             :src="article.cover"
@@ -26,18 +27,17 @@
             @error="onImageError"
           />
         </div>
+        <!-- 圖片網址 && 圖片檔案 -->
         <div
           v-else-if="article.cover && imageUrl"
           class="mt-4 relative flex flex-col md:flex-row justify-center items-center group w-full md:h-[500px]"
         >
-          <!-- 第一張圖片 -->
           <img
             :src="article.cover ? article.cover : imageUrl"
             alt="圖片網址"
             class="md:absolute md:top-0 md:left-0 md:h-[420px] md:w-[700px] object-cover md:transition-transform rounded-xl shadow-md duration-300 md:z-20 md:group-hover:z-10 md:group-hover:translate-x-[70px] md:group-hover:translate-y-[70px] hidden md:block group-hover:block"
             @error="onImageError"
           />
-          <!-- 第二張圖片 -->
           <img
             :src="imageUrl ? imageUrl : article.cover"
             alt="圖片檔案"
@@ -45,14 +45,16 @@
             @error="onImageError"
           />
         </div>
+        <!-- 只有圖片檔案 -->
         <div v-else-if="!article.cover && imageUrl" class="mt-4 flex justify-center">
           <img
             :src="imageUrl"
-            alt="圖片網址"
+            alt="圖片檔案"
             class="md:h-[450px] rounded-xl shadow-md"
             @error="onImageError"
           />
         </div>
+        <!-- 都沒有圖片時 -->
         <div v-else class="mt-4 flex justify-center">
           <img src="/public/article-img.png" class="md:h-[450px] rounded-xl shadow-md" />
         </div>
@@ -99,6 +101,13 @@
         >
           {{ article.content }}
         </div>
+        <div class="flex justify-end mt-5">
+          <BlackAndWhiteButton :height="37.81" :width="61.82">
+            <NuxtLink to="/" class="absolute inset-0 flex items-center justify-center">
+              回首頁
+            </NuxtLink>
+          </BlackAndWhiteButton>
+        </div>
       </div>
     </template>
     <!-- 固定在右下角的 Top 按鈕 -->
@@ -109,17 +118,26 @@
 <script setup>
 const route = useRoute()
 // console.log(route.params.id)
-const { data: article, error, pending } = await useFetch(`/api/articles/${route.params.id}`)
 const imageUrl = ref('')
 const userInfo = useState('userInfo')
 const isDark = useDark()
+const article = reactive({
+  title: '',
+  content: '',
+  cover: '',
+  img: null,
+  img_filename: ''
+})
+const { data, error } = await useFetch(`/api/articles/${route.params.id}`)
 
 onMounted(() => {
-  if (article && article.value.img && article.value.img.data) {
+  Object.assign(article, data.value)
+  // console.log(article)
+  if (article && article.img && article.img.data) {
     // 將 Buffer 陣列轉換成 Uint8Array
-    const uint8Arr = new Uint8Array(article.value.img.data)
+    const uint8Arr = new Uint8Array(article.img.data)
     // 建立 Blob，使用回傳的 MIME type，若無則預設 image/jpeg
-    const blob = new Blob([uint8Arr], { type: article.value.img.type || 'image/jpeg' })
+    const blob = new Blob([uint8Arr], { type: article.img.type || 'image/jpeg' })
     // 建立臨時 URL
     imageUrl.value = URL.createObjectURL(blob)
   }
@@ -148,27 +166,27 @@ const handleDeleteArticle = () => {
 
 useHead({
   // 使用響應式資料
-  // title: article.value.title
+  // title: article.title
 
   // 使用函式顯示組合字串模板
-  title: () => `Article Blog No.${route.params.id} | ${article.value.title}`
+  title: () => `Article Blog No.${route.params.id} | ${article.title}`
 })
 
 // 避免 SEO 時，description 中過長文章內容，只顯示前 300 字
-const description = article.value.content.replace(/\n/g, '  ').slice(0, 300)
+const description = article.content.replace(/\n/g, '  ').slice(0, 300)
 
 // 建立該頁面的 SEO 相關 meta 標籤
 useSeoMeta({
-  // description: article.value.content,
+  // description: article.content,
   description, // 顯示前 300 字的文章內容
-  ogTitle: article.value.title,
+  ogTitle: article.title,
   ogDescription: description,
-  ogImage: article.value.cover,
-  ogUrl: () => `http://localhost:3000/articles/${article.value.id}`,
-  twitterTitle: article.value.title,
+  ogImage: article.cover,
+  ogUrl: () => `http://localhost:3000/articles/${article.id}`,
+  twitterTitle: article.title,
   twitterDescription: description,
-  twitterImage: article.value.cover,
-  twittergUrl: () => `http://localhost:3000/articles/${article.value.id}`,
+  twitterImage: article.cover,
+  twittergUrl: () => `http://localhost:3000/articles/${article.id}`,
   twitterCard: 'summary_large_image'
 })
 </script>
