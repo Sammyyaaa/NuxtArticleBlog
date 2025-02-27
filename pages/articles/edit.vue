@@ -163,7 +163,7 @@
 
 <script setup>
 const route = useRoute()
-const isDark = useState('isDark')
+const isDark = useDark()
 const uploadImgFileName = ref('')
 const articleData = ref({
   title: '',

@@ -159,7 +159,7 @@ const {
     pageSize: 10
   }
 })
-const isDark = useState('isDark')
+const isDark = useDark()
 const searchArticle = ref('')
 const isSearching = ref(false)
 const sortAsc = ref(false)

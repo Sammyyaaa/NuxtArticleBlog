@@ -151,7 +151,7 @@ const articleData = reactive({
   cover: '',
   img: null
 })
-const isDark = useState('isDark')
+const isDark = useDark()
 
 const handleSubmit = async () => {
   // 使用 FormData 包裝所有資料，包含上傳的圖片檔案

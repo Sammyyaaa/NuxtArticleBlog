@@ -112,7 +112,7 @@ const route = useRoute()
 const { data: article, error, pending } = await useFetch(`/api/articles/${route.params.id}`)
 const imageUrl = ref('')
 const userInfo = useState('userInfo')
-const isDark = useState('isDark')
+const isDark = useDark()
 
 onMounted(() => {
   if (article && article.value.img && article.value.img.data) {

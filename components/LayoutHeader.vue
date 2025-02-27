@@ -4,7 +4,7 @@
     <nav
       class="flex w-full items-center justify-between px-6 lg:px-60 py-2 border-b-2"
       :class="{
-        'dark:bg-gray-800 border-gray-600': isDark,
+        'bg-gray-800 border-gray-600': isDark,
         'border-gray-200': !isDark
       }"
     >
@@ -135,7 +135,7 @@
 const route = useRoute()
 const { data } = await useFetch('/api/whoami')
 const userInfo = useState('userInfo') // 全域共享狀態
-const isDark = useState('isDark', () => true)
+const isDark = useDark()
 
 watch(
   data,

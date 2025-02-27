@@ -128,7 +128,7 @@ const loginData = reactive({
 const loginError = () => {
   alert('登入失敗')
 }
-const isDark = useState('isDark')
+const isDark = useDark()
 
 const showPassword = ref(false) // 控制密碼顯示與隱藏
 

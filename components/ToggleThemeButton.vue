@@ -3,7 +3,7 @@
     class="group p-2 flex rounded focus:outline-none"
     :class="{
       'hover:bg-gray-200': isDark,
-      'dark:hover:bg-gray-700': !isDark
+      'hover:bg-gray-700': !isDark
     }"
     @click="toggleTheme"
   >
@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-const isDark = useState('isDark')
+const isDark = useDark()
 function toggleTheme() {
   isDark.value = !isDark.value
   if (isDark.value) {

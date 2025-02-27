@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-const isDark = useState('isDark')
+const isDark = useDark()
 const props = defineProps({
   height: {
     type: Number,

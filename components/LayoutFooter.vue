@@ -9,5 +9,5 @@
 </template>
 
 <script setup>
-const isDark = useState('isDark', () => true)
+const isDark = useDark()
 </script>
