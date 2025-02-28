@@ -1,7 +1,7 @@
 <template>
   <!-- 登入頁面 -->
   <div
-    class="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 h-[100vh]"
+    class="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 h-[100vh] overflow-hidden"
     :class="{ 'bg-gray-800': isDark }"
   >
     <div class="w-full max-w-md">
@@ -11,7 +11,7 @@
             <div class="mr-3">
               <!-- nuxt-icon 元件 -->
               <Icon
-                size="70"
+                class="w-[50px] h-[50px] md:w-[70px] md:h-[70px]"
                 name="material-symbols:edit-note"
                 :class="{ 'text-white': isDark, 'text-gray-700': !isDark }"
               />
@@ -25,14 +25,14 @@
           </div>
         </NuxtLink>
         <h2
-          class="mt-6 text-center text-2xl font-bold tracking-tight"
+          class="mt-3 text-center text-xl md:text-2xl font-bold tracking-tight"
           :class="{ 'text-gray-200': isDark, 'text-gray-900': !isDark }"
         >
           登入帳號
         </h2>
       </div>
 
-      <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div class="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
         <div
           class="px-4 py-8 shadow-md sm:rounded-lg sm:px-10"
           :class="{ 'bg-gray-700': isDark, 'bg-white': !isDark }"
