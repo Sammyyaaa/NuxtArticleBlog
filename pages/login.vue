@@ -1,7 +1,7 @@
 <template>
   <!-- 登入頁面 -->
   <div
-    class="flex flex-col items-center justify-center px-4 py-24 sm:px-6 lg:px-8 h-[100vh]"
+    class="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 h-[100vh]"
     :class="{ 'bg-gray-800': isDark }"
   >
     <div class="w-full max-w-md">

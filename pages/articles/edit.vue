@@ -1,9 +1,6 @@
 <template>
-  <div
-    class="flex w-full justify-center px-6 lg:px-0 h-[calc(100vh-65.81px)]"
-    :class="{ 'bg-gray-800': isDark }"
-  >
-    <div class="mb-8 w-full max-w-3xl justify-center">
+  <div class="flex w-full justify-center px-6 lg:px-0" :class="{ 'bg-gray-800': isDark }">
+    <div class="w-full max-w-3xl justify-center">
       <form
         class="w-full space-y-8 divide-y"
         :class="{ 'divide-gray-700': isDark, 'divide-gray-200': !isDark }"
@@ -20,8 +17,8 @@
               </h3>
             </div>
 
-            <div class="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-              <div class="col-span-12">
+            <div class="mt-6 flex flex-col gap-6">
+              <div>
                 <label
                   for="title"
                   class="block text-sm font-medium"
@@ -46,7 +43,8 @@
                   />
                 </div>
               </div>
-              <div class="col-span-12">
+
+              <div>
                 <label
                   for="cover"
                   class="block text-sm font-medium"
@@ -71,7 +69,7 @@
                 </div>
               </div>
 
-              <div class="col-span-12">
+              <div>
                 <label
                   for="img"
                   class="block text-sm font-medium"
@@ -114,7 +112,7 @@
                 </div>
               </div>
 
-              <div class="col-span-12">
+              <div>
                 <label
                   for="content"
                   class="block text-sm font-medium"
@@ -141,7 +139,7 @@
           </div>
         </div>
 
-        <div class="pt-5">
+        <div class="py-5">
           <div class="flex justify-end">
             <BlackAndWhiteButton :height="37.81" :width="61.82">
               <NuxtLink class="absolute inset-0 flex items-center justify-center" to="/">
