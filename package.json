@@ -24,6 +24,7 @@
     "eslint-plugin-prettier": "^5.2.3",
     "jsonwebtoken": "^9.0.2",
     "nuxt-icon": "^1.0.0-beta.7",
+    "nuxt-particles": "^0.3.0",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11"
   },

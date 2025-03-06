@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="flex w-full flex-col items-center min-h-[calc(100vh-65.81px)]"
-    :class="{ 'bg-gray-800': isDark }"
-  >
+  <div class="flex w-full flex-col items-center min-h-[calc(100vh-65.81px)]">
     <!-- 加載中 -->
     <div v-if="!article.title" class="pt-6">
       <Icon class="h-12 w-12 text-gray-300" name="eos-icons:bubble-loading" />
@@ -23,7 +20,7 @@
           <img
             :src="article.cover"
             alt="圖片網址"
-            class="md:h-[450px] rounded-xl shadow-md"
+            class="h-[300px] md:h-[450px] rounded-xl shadow-md"
             @error="onImageError"
           />
         </div>
@@ -35,13 +32,13 @@
           <img
             :src="article.cover ? article.cover : imageUrl"
             alt="圖片網址"
-            class="md:absolute md:top-0 md:left-0 md:h-[420px] md:w-[700px] object-cover md:transition-transform rounded-xl shadow-md duration-300 md:z-20 md:group-hover:z-10 md:group-hover:translate-x-[70px] md:group-hover:translate-y-[70px] hidden md:block group-hover:block"
+            class="md:absolute md:top-0 md:left-0 h-[300px] md:h-[420px] md:w-[700px] object-cover md:transition-transform rounded-xl shadow-md duration-300 md:z-20 md:group-hover:z-10 md:group-hover:translate-x-[70px] md:group-hover:translate-y-[70px] hidden md:block group-hover:block"
             @error="onImageError"
           />
           <img
             :src="imageUrl ? imageUrl : article.cover"
             alt="圖片檔案"
-            class="md:absolute md:top-[75px] md:right-0 md:h-[420px] md:w-[700px] object-cover md:transition-transform rounded-xl shadow-md duration-300 md:z-10 md:group-hover:z-20 md:group-hover:-translate-x-[70px] md:group-hover:-translate-y-[70px] max-md:group-hover:hidden"
+            class="md:absolute md:top-[75px] md:right-0 h-[300px] md:h-[420px] md:w-[700px] object-cover md:transition-transform rounded-xl shadow-md duration-300 md:z-10 md:group-hover:z-20 md:group-hover:-translate-x-[70px] md:group-hover:-translate-y-[70px] max-md:group-hover:hidden"
             @error="onImageError"
           />
         </div>
@@ -50,13 +47,13 @@
           <img
             :src="imageUrl"
             alt="圖片檔案"
-            class="md:h-[450px] rounded-xl shadow-md"
+            class="h-[300px] md:h-[450px] rounded-xl shadow-md"
             @error="onImageError"
           />
         </div>
         <!-- 都沒有圖片時 -->
         <div v-else class="mt-4 flex justify-center">
-          <img src="/public/article-img.png" class="md:h-[450px] rounded-xl shadow-md" />
+          <img src="/public/article-img.png" class="h-[300px] md:h-[450px] rounded-xl shadow-md" />
         </div>
 
         <div class="my-2 flex flex-col justify-between sm:my-0 sm:flex-row sm:items-center">

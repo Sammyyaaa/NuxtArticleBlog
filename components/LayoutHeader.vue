@@ -5,7 +5,7 @@
       class="flex w-full items-center justify-between px-6 lg:px-60 py-2 border-b-2"
       :class="{
         'bg-gray-800 border-gray-600': isDark,
-        'border-gray-200': !isDark
+        'bg-white border-gray-200': !isDark
       }"
     >
       <div>

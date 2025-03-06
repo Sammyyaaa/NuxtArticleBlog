@@ -2,7 +2,6 @@
   <div
     class="flex w-full flex-col items-center"
     :class="{
-      'bg-gray-800 ': isDark,
       ' h-[calc(100vh-65.81px)]': !articlesResponse || articlesResponse.articles.length < 4
     }"
   >
@@ -67,7 +66,10 @@
             >
               <NuxtLink
                 class="group md:ml-8 pl-2 flex cursor-pointer flex-col items-start pb-6 pt-1 transition"
-                :class="{ 'hover:bg-gray-700': isDark, 'hover:bg-gray-100': !isDark }"
+                :class="{
+                  'hover:bg-gray-700 hover:bg-opacity-80': isDark,
+                  'hover:bg-gray-100 hover:bg-opacity-65': !isDark
+                }"
                 :to="{
                   name: 'articles-id',
                   params: {
@@ -81,7 +83,10 @@
                 >
                   <span>{{ article.title }}</span>
                 </h2>
-                <time class="order-first mb-3 flex items-center text-sm text-gray-400 md:hidden">
+                <time
+                  class="order-first mb-3 flex items-center text-sm md:hidden"
+                  :class="{ 'text-gray-400': isDark, 'text-gray-500': !isDark }"
+                >
                   {{ date2LocaleString(article.updated_at) }}
                 </time>
                 <p
@@ -99,7 +104,7 @@
                 </span>
               </NuxtLink>
               <time
-                class="order-first mb-3 ml-3 mr-6 hidden items-center text-sm text-gray-400 md:flex"
+                class="order-first mb-3 ml-3 mr-6 hidden items-center text-sm text-gray-500 md:flex"
               >
                 {{ date2LocaleString(article.updated_at) }}
               </time>
