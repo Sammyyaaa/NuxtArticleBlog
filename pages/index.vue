@@ -40,8 +40,8 @@
       </div>
     </div>
     <div class="my-8 flex w-full px-6 lg:px-60 flex-col">
-      <div v-if="pending">
-        <Icon class="h-6 w-6 text-gray-500" name="eos-icons:loading" />
+      <div v-if="pending" class="flex h-[65vh] items-center justify-center">
+        <Icon class="h-16 w-16 text-gray-500" name="eos-icons:loading" />
       </div>
       <template v-else>
         <div v-if="error">
