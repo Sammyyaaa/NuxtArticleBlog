@@ -6,7 +6,7 @@
     }"
   >
     <div class="flex md:items-center mt-8 w-full px-6 lg:px-60 flex-col md:flex-row">
-      <div class="flex items-center justuify-center">
+      <div class="flex items-center justify-center">
         <h1
           class="text-3xl font-semibold"
           :class="{ 'text-gray-400': isDark, 'text-gray-800': !isDark }"
