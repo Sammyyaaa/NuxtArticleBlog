@@ -1,6 +1,6 @@
 # Nuxt Article Blog
 
-基於 Nuxt 3 建置的文章部落格，採低調奢華雜誌感設計，支援 Markdown 撰寫、文章標籤分類、圖片輪播，搭配 JWT 驗證保護管理功能，串接 Neon 雲端資料庫，並部署於 Vercel。
+基於 Nuxt 3 建置的文章部落格，支援 Markdown 撰寫、文章標籤分類、圖片輪播，以 Vue Query 管理資料請求與快取，搭配 JWT 驗證保護管理功能，串接 Neon 雲端資料庫，並部署於 Vercel。
 
 ## 技術棧
 
@@ -27,18 +27,18 @@
 
 ## API 路由
 
-| 方法     | 路徑                | 說明                                                        |
-| -------- | ------------------- | ----------------------------------------------------------- |
-| `GET`    | `/api/articles`     | 取得文章列表（支援 `?page`、`?pageSize`、`?sort`、`?tag`）  |
-| `POST`   | `/api/articles`     | 新增文章                                                    |
-| `GET`    | `/api/articles/:id` | 取得單篇文章                                                |
-| `PATCH`  | `/api/articles/:id` | 更新文章                                                    |
-| `DELETE` | `/api/articles/:id` | 刪除文章                                                    |
-| `GET`    | `/api/article`      | 關鍵字搜尋文章（支援 `?searchArticle`、`?sort`）            |
-| `GET`    | `/api/tags`         | 取得所有不重複標籤                                          |
-| `POST`   | `/api/login`        | 登入，寫入 JWT Cookie                                       |
-| `DELETE` | `/api/session`      | 登出，清除 Cookie                                           |
-| `GET`    | `/api/whoami`       | 取得目前登入使用者資訊                                      |
+| 方法     | 路徑                | 說明                                                       |
+| -------- | ------------------- | ---------------------------------------------------------- |
+| `GET`    | `/api/articles`     | 取得文章列表（支援 `?page`、`?pageSize`、`?sort`、`?tag`） |
+| `POST`   | `/api/articles`     | 新增文章                                                   |
+| `GET`    | `/api/articles/:id` | 取得單篇文章                                               |
+| `PATCH`  | `/api/articles/:id` | 更新文章                                                   |
+| `DELETE` | `/api/articles/:id` | 刪除文章                                                   |
+| `GET`    | `/api/article`      | 關鍵字搜尋文章（支援 `?searchArticle`、`?sort`）           |
+| `GET`    | `/api/tags`         | 取得所有不重複標籤                                         |
+| `POST`   | `/api/login`        | 登入，寫入 JWT Cookie                                      |
+| `DELETE` | `/api/session`      | 登出，清除 Cookie                                          |
+| `GET`    | `/api/whoami`       | 取得目前登入使用者資訊                                     |
 
 ## 資料請求架構（TanStack Query）
 
@@ -46,35 +46,38 @@
 
 ### 為什麼選擇 TanStack Query
 
-| 比較項目 | `useFetch` | TanStack Query |
-| --- | --- | --- |
-| 快取範圍 | 元件生命週期 | 全域 QueryClient |
-| 跨元件共享 | ❌ 各自獨立 | ✅ 同 queryKey 共用快取 |
-| 背景重新整理 | ❌ | ✅ staleTime 控制 |
+| 比較項目      | `useFetch`    | TanStack Query            |
+| ------------- | ------------- | ------------------------- |
+| 快取範圍      | 元件生命週期  | 全域 QueryClient          |
+| 跨元件共享    | ❌ 各自獨立   | ✅ 同 queryKey 共用快取   |
+| 背景重新整理  | ❌            | ✅ staleTime 控制         |
 | Mutation 管理 | ❌ 需手動處理 | ✅ useMutation + 自動更新 |
 
 ### queryKey 設計
 
 每筆快取以陣列形式的 `queryKey` 作為唯一識別，相同的 `queryKey` 在任何元件中都共用同一份資料。
 
-| queryKey | 對應資料 | 共用元件 |
-| --- | --- | --- |
-| `['articles']` | 文章列表（含分頁/排序/搜尋/標籤） | `pages/index.vue` |
-| `['article', id]` | 單篇文章 | `[id].vue`、`edit.vue` |
-| `['whoami']` | 登入使用者資訊 | `LayoutHeader.vue`、`[id].vue` |
-| `['tags']` | 所有不重複標籤 | `index.vue`、`create.vue`、`edit.vue` |
+| queryKey          | 對應資料                          | 共用元件                              |
+| ----------------- | --------------------------------- | ------------------------------------- |
+| `['articles']`    | 文章列表（含分頁/排序/搜尋/標籤） | `pages/index.vue`                     |
+| `['article', id]` | 單篇文章                          | `[id].vue`、`edit.vue`                |
+| `['whoami']`      | 登入使用者資訊                    | `LayoutHeader.vue`、`[id].vue`        |
+| `['tags']`        | 所有不重複標籤                    | `index.vue`、`create.vue`、`edit.vue` |
 
 ### 動態 queryKey（Reactive）
 
 首頁文章列表使用 `computed` 包裝 queryKey，當分頁、排序、搜尋關鍵字或標籤篩選任一改變時，TanStack Query 自動偵測並重新 fetch，無需手動呼叫：
 
 ```js
-queryKey: computed(() => ['articles', {
-  page: currentPage.value,
-  sort: activeSort.value,
-  search: activeSearch.value,
-  tag: activeTag.value
-}])
+queryKey: computed(() => [
+  'articles',
+  {
+    page: currentPage.value,
+    sort: activeSort.value,
+    search: activeSearch.value,
+    tag: activeTag.value
+  }
+])
 ```
 
 ### 快取更新策略
@@ -82,6 +85,7 @@ queryKey: computed(() => ['articles', {
 **`removeQueries` vs `invalidateQueries`**
 
 本專案統一使用 `removeQueries` 而非 `invalidateQueries`：
+
 - `invalidateQueries`：標記為過期，但保留舊資料並背景更新 → 用戶返回首頁時先看到舊內容，有延遲感
 - `removeQueries`：完全清除快取 → 首頁掛載時直接 fetch 最新資料，無舊資料閃現
 
@@ -115,15 +119,15 @@ ALTER TABLE article ADD COLUMN tags TEXT[] DEFAULT '{}';
 
 撰寫/編輯文章時可使用以下 Markdown 語法，儲存後文章頁自動渲染：
 
-| 語法 | 效果 |
-| --- | --- |
-| `# 標題` | 一到六級標題 |
-| `**粗體**` | **粗體** |
-| `` `程式碼` `` | 行內程式碼 |
-| ` ``` ` | 程式碼區塊 |
-| `- 項目` | 無序清單 |
-| `1. 項目` | 有序清單 |
-| `> 引用` | 引用區塊 |
+| 語法           | 效果         |
+| -------------- | ------------ |
+| `# 標題`       | 一到六級標題 |
+| `**粗體**`     | **粗體**     |
+| `` `程式碼` `` | 行內程式碼   |
+| ` ``` `        | 程式碼區塊   |
+| `- 項目`       | 無序清單     |
+| `1. 項目`      | 有序清單     |
+| `> 引用`       | 引用區塊     |
 
 ## 環境變數
 
