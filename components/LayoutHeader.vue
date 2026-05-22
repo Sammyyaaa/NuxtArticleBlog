@@ -132,32 +132,32 @@
 </template>
 
 <script setup>
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+
+// 來自 components/LayoutHeader.vue
+// 原本: await useFetch('/api/whoami') + useState('userInfo') + watch 同步到全域狀態
+// 改為: useQuery 管理，queryKey: ['whoami'] 讓其他元件（如 pages/articles/[id].vue）可共用快取，不重複請求
+const { data: userInfo } = useQuery({
+  queryKey: ['whoami'],
+  queryFn: () => $fetch('/api/whoami')
+})
+
 const route = useRoute()
-const { data } = await useFetch('/api/whoami')
-const userInfo = useState('userInfo') // 全域共享狀態
 const isDark = useDark()
+const queryClient = useQueryClient()
 
-watch(
-  data,
-  (newData) => {
-    // console.log(newData)
-    userInfo.value = newData
-  },
-  {
-    immediate: true // 觸發新狀態
+// 來自 components/LayoutHeader.vue
+// 原本: $fetch('/api/session', DELETE).then(() => userInfo.value = null)
+// 改為: useMutation，成功後 invalidateQueries(['whoami']) 讓 userInfo 自動清空並觸發重新整理
+const { mutate: logout } = useMutation({
+  mutationFn: () => $fetch('/api/session', { method: 'DELETE' }),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['whoami'] })
+    if (route.path === '/articles/create' || route.path === '/articles/edit') {
+      navigateTo('/')
+    }
   }
-)
+})
 
-const handleLogout = () => {
-  $fetch('/api/session', {
-    method: 'DELETE'
-  }).then(() => {
-    userInfo.value = null
-  })
-
-  if (route.path === '/articles/create' || route.path === '/articles/edit') {
-    navigateTo('/')
-  }
-  // console.log(route.path)
-}
+const handleLogout = () => logout()
 </script>

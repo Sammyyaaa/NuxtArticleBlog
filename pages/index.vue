@@ -131,7 +131,7 @@
             >第 {{ articlesResponse.page }} 頁</label
           >
           <NuxtLink
-            v-if="!isSearching"
+            v-if="!isSearching && articlesResponse.articles.length >= articlesResponse.pageSize"
             class="flex items-center text-xl font-medium text-gray-400 hover:text-emerald-500"
             :to="{
               name: 'index',
@@ -152,22 +152,57 @@
 </template>
 
 <script setup>
+import { useQuery } from '@tanstack/vue-query'
+
 const route = useRoute()
 const currentPage = computed(() => parseInt(route?.query?.page) || 1)
-const {
-  pending,
-  data: articlesResponse,
-  error
-} = await useFetch('/api/articles', {
-  query: {
-    page: currentPage,
-    pageSize: 10
-  }
-})
 const isDark = useDark()
 const searchArticle = ref('')
 const isSearching = ref(false)
 const sortAsc = ref(false)
+// 追蹤實際套用的搜尋關鍵字與排序，與輸入框的 searchArticle 分開
+// 點下搜尋才更新，避免每次輸入都觸發 query
+const activeSearch = ref('')
+const activeSort = ref('DESC')
+
+// 來自 pages/index.vue
+// 原本: await useFetch('/api/articles', { query: { page, pageSize } })
+//      搜尋時用 $fetch('/api/article', ...) 手動覆寫 articlesResponse.value
+// 改為: 單一 useQuery，queryKey 包含 page / isSearching / activeSearch / activeSort
+//      任一 ref 改變，TanStack Query 自動選擇正確的 endpoint 重新 fetch
+const {
+  isPending: pending,
+  data: articlesResponse,
+  error
+} = useQuery({
+  queryKey: computed(() => [
+    'articles',
+    {
+      page: isSearching.value ? 1 : currentPage.value,
+      search: activeSearch.value,
+      sort: activeSort.value,
+      isSearching: isSearching.value
+    }
+  ]),
+  queryFn: () => {
+    if (isSearching.value && activeSearch.value !== '') {
+      return $fetch('/api/article', {
+        query: {
+          page: 1,
+          pageSize: 10,
+          sort: activeSort.value,
+          searchArticle: activeSearch.value
+        }
+      })
+    }
+    return $fetch('/api/articles', {
+      query: {
+        page: currentPage.value,
+        pageSize: 10
+      }
+    })
+  }
+})
 
 const date2LocaleString = (date) => {
   return new Date(date).toLocaleString()
@@ -178,28 +213,18 @@ const toggleSort = () => {
   handleSearch()
 }
 
-const handleSearch = async () => {
-  const order = sortAsc.value ? 'ASC' : 'DESC'
-  isSearching.value = true
+// 來自 pages/index.vue
+// 原本: $fetch 搜尋後直接 articlesResponse.value = data（手動寫入）
+// 改為: 更新 activeSearch / activeSort / isSearching ref，queryKey 變動觸發自動 refetch
+const handleSearch = () => {
   if (searchArticle.value === '') {
     isSearching.value = false
+    activeSearch.value = ''
     navigateTo('/', { replace: true })
+    return
   }
-
-  // const page = currentPage.value
-  const data = await $fetch('/api/article', {
-    query: {
-      page: 1,
-      pageSize: 10,
-      sort: order,
-      searchArticle: searchArticle.value.trim()
-    }
-  })
-
-  articlesResponse.value = data
+  activeSort.value = sortAsc.value ? 'ASC' : 'DESC'
+  activeSearch.value = searchArticle.value.trim()
+  isSearching.value = true
 }
-
-watch(articlesResponse, (newArticlesResponse) => {
-  currentPage.value = newArticlesResponse.page
-})
 </script>

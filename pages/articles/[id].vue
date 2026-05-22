@@ -113,11 +113,21 @@
 </template>
 
 <script setup>
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+
 const route = useRoute()
-// console.log(route.params.id)
 const imageUrl = ref('')
-const userInfo = useState('userInfo')
 const isDark = useDark()
+const queryClient = useQueryClient()
+
+// 來自 pages/articles/[id].vue
+// 原本: useState('userInfo') 取得 LayoutHeader 設定的全域狀態
+// 改為: useQuery 使用相同的 queryKey: ['whoami']，直接共用 LayoutHeader 已快取的資料，不會重複打 API
+const { data: userInfo } = useQuery({
+  queryKey: ['whoami'],
+  queryFn: () => $fetch('/api/whoami')
+})
+
 const article = reactive({
   title: '',
   content: '',
@@ -125,39 +135,51 @@ const article = reactive({
   img: null,
   img_filename: ''
 })
-const { data, error } = await useFetch(`/api/articles/${route.params.id}`)
 
-onMounted(() => {
-  Object.assign(article, data.value)
-  // console.log(article)
-  if (article && article.img && article.img.data) {
-    // 將 Buffer 陣列轉換成 Uint8Array
-    const uint8Arr = new Uint8Array(article.img.data)
-    // 建立 Blob，使用回傳的 MIME type，若無則預設 image/jpeg
-    const blob = new Blob([uint8Arr], { type: article.img.type || 'image/jpeg' })
-    // 建立臨時 URL
-    imageUrl.value = URL.createObjectURL(blob)
-  }
+// 來自 pages/articles/[id].vue
+// 原本: await useFetch(`/api/articles/${id}`) + onMounted 同步到 article reactive
+// 改為: useQuery 非同步取資料，用 watch(data, ...) 取代 onMounted，確保快取回來的資料也能正確觸發
+const { data, error } = useQuery({
+  queryKey: ['article', route.params.id],
+  queryFn: () => $fetch(`/api/articles/${route.params.id}`)
 })
+
+watch(
+  data,
+  (newData) => {
+    if (!newData) return
+    Object.assign(article, newData)
+    if (article.img?.data) {
+      // 將 Buffer 陣列轉換成 Uint8Array
+      const uint8Arr = new Uint8Array(article.img.data)
+      // 建立 Blob，使用回傳的 MIME type，若無則預設 image/jpeg
+      const blob = new Blob([uint8Arr], { type: article.img.type || 'image/jpeg' })
+      // 建立臨時 URL
+      imageUrl.value = URL.createObjectURL(blob)
+    }
+  },
+  { immediate: true }
+)
 
 function onImageError(event) {
   event.target.src = '/article-img.png'
 }
 
-const handleDeleteArticle = () => {
-  const answer = confirm('你確定要刪除文章嗎')
+// 來自 pages/articles/[id].vue
+// 原本: $fetch(DELETE).then(() => navigateTo('/'))
+// 改為: useMutation，成功後 invalidateQueries(['articles']) 讓首頁列表快取失效並自動重新 fetch
+const { mutate: deleteArticle } = useMutation({
+  mutationFn: () => $fetch(`/api/articles/${route.params.id}`, { method: 'DELETE' }),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['articles'] })
+    navigateTo('/')
+  },
+  onError: (err) => alert(err)
+})
 
-  if (answer) {
-    $fetch(`/api/articles/${route.params.id}`, {
-      method: 'DELETE'
-    })
-      .then(() => {
-        navigateTo('/')
-      })
-      .catch((error) => {
-        // console.log(error)
-        alert(error)
-      })
+const handleDeleteArticle = () => {
+  if (confirm('你確定要刪除文章嗎')) {
+    deleteArticle()
   }
 }
 

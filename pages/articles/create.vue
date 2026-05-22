@@ -142,6 +142,8 @@
 </template>
 
 <script setup>
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
+
 const uploadImgFileName = ref('')
 const articleData = reactive({
   title: '',
@@ -150,8 +152,25 @@ const articleData = reactive({
   img: null
 })
 const isDark = useDark()
+const queryClient = useQueryClient()
 
-const handleSubmit = async () => {
+// 來自 pages/articles/create.vue
+// 原本: await $fetch('/api/articles', POST).then(response => navigateTo(...))
+// 改為: useMutation，成功後 invalidateQueries(['articles']) 讓首頁列表快取失效，
+//       回到首頁時自動顯示包含新文章的最新列表，不需整頁重整
+const { mutate: createArticle } = useMutation({
+  mutationFn: (formData) => $fetch('/api/articles', { method: 'POST', body: formData }),
+  onSuccess: (response) => {
+    // 送出成功後，移除先前動態建立的 file input
+    const input = document.getElementById('uploadInput')
+    if (input) input.remove()
+    queryClient.invalidateQueries({ queryKey: ['articles'] })
+    navigateTo({ name: 'articles-id', params: { id: response.id } })
+  },
+  onError: (error) => alert(error.value)
+})
+
+const handleSubmit = () => {
   // 使用 FormData 包裝所有資料，包含上傳的圖片檔案
   const formData = new FormData()
   formData.append('title', articleData.title)
@@ -160,24 +179,7 @@ const handleSubmit = async () => {
   if (articleData.img) {
     formData.append('img', articleData.img)
   }
-
-  await $fetch('/api/articles', {
-    method: 'POST',
-    body: formData
-  })
-    .then((response) => {
-      // 送出成功後，移除先前動態建立的 file input
-      const input = document.getElementById('uploadInput')
-      if (input) {
-        input.remove()
-      }
-
-      navigateTo({
-        name: 'articles-id',
-        params: { id: response.id }
-      })
-    })
-    .catch((error) => alert(error.value))
+  createArticle(formData)
 }
 
 // 進入建立文章頁面，觸發路由中間件判斷是否有登入

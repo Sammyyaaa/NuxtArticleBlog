@@ -160,6 +160,8 @@
 </template>
 
 <script setup>
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+
 const route = useRoute()
 const isDark = useDark()
 const uploadImgFileName = ref('')
@@ -170,14 +172,44 @@ const articleData = reactive({
   img: null,
   img_filename: ''
 })
-const { data } = await useFetch(`/api/articles/${route.query.id}`)
+const queryClient = useQueryClient()
 
-onMounted(() => {
-  Object.assign(articleData, data.value)
-  // console.log(articleData)
+// 來自 pages/articles/edit.vue
+// 原本: await useFetch(`/api/articles/${id}`) + onMounted 同步到 articleData
+// 改為: useQuery 共用 ['article', id] 快取（與 [id].vue 相同的 queryKey），若已有快取則不重複請求
+const { data } = useQuery({
+  queryKey: ['article', route.query.id],
+  queryFn: () => $fetch(`/api/articles/${route.query.id}`)
 })
 
-const handleSubmit = async () => {
+watch(
+  data,
+  (newData) => {
+    if (!newData) return
+    Object.assign(articleData, newData)
+  },
+  { immediate: true }
+)
+
+// 來自 pages/articles/edit.vue
+// 原本: await $fetch(PATCH).then(response => navigateTo(...))
+// 改為: useMutation，成功後同時 invalidate 文章列表（['articles']）和該篇文章快取（['article', id]），
+//       讓首頁列表和文章頁都能拿到最新資料
+const { mutate: editArticle } = useMutation({
+  mutationFn: (formData) =>
+    $fetch(`/api/articles/${route.query.id}`, { method: 'PATCH', body: formData }),
+  onSuccess: (response) => {
+    // 送出成功後，移除先前動態建立的 file input
+    const input = document.getElementById('uploadEditInput')
+    if (input) input.remove()
+    queryClient.invalidateQueries({ queryKey: ['articles'] })
+    queryClient.invalidateQueries({ queryKey: ['article', route.query.id] })
+    navigateTo({ name: 'articles-id', params: { id: response.id } })
+  },
+  onError: (error) => alert(error.value)
+})
+
+const handleSubmit = () => {
   // 使用 FormData 包裝所有資料，包含上傳的圖片檔案
   const formData = new FormData()
   formData.append('title', articleData.title)
@@ -187,30 +219,7 @@ const handleSubmit = async () => {
   if (articleData.img) {
     formData.append('img', articleData.img)
   }
-
-  // for (const pair of formData.entries()) {
-  //   console.log(pair[0] + ': ' + pair[1])
-  // }
-
-  await $fetch(`/api/articles/${route.query.id}`, {
-    method: 'PATCH',
-    body: formData
-  })
-    .then((response) => {
-      // 送出成功後，移除先前動態建立的 file input
-      const input = document.getElementById('uploadEditInput')
-      if (input) {
-        input.remove()
-      }
-
-      navigateTo({
-        name: 'articles-id',
-        params: {
-          id: response.id
-        }
-      })
-    })
-    .catch((error) => alert(error.value))
+  editArticle(formData)
 }
 
 const handleUpload = () => {
