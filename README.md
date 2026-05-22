@@ -9,11 +9,13 @@
 - **資料庫**：[Neon](https://neon.tech/)（Serverless PostgreSQL）
 - **驗證**：JWT（`jsonwebtoken`）
 - **部署**：[Vercel](https://vercel.com/)（推送至 GitHub 後自動部署）
+- **資料請求**：[TanStack Query（Vue Query）](https://tanstack.com/query/latest)（`@tanstack/vue-query`）
 - **其他套件**：`nuxt-icon`、`nuxt-particles`
 
 ## 功能
 
 - 文章列表瀏覽（分頁支援）
+- 文章搜尋與排序
 - 文章詳情頁面
 - 文章新增 / 編輯 / 刪除（需登入）
 - JWT Cookie 登入驗證
@@ -31,6 +33,19 @@
 | `POST`   | `/api/login`        | 登入，寫入 JWT Cookie                       |
 | `DELETE` | `/api/session`      | 登出，清除 Cookie                           |
 | `GET`    | `/api/whoami`       | 取得目前登入使用者資訊                      |
+
+## 資料請求架構
+
+本專案使用 **TanStack Query（Vue Query）** 管理所有 API 請求與快取，取代原本的 `useFetch` / `$fetch`。
+
+| queryKey | 對應資料 | 說明 |
+| --- | --- | --- |
+| `['articles']` | 文章列表 | 新增、編輯、刪除後自動 invalidate |
+| `['article', id]` | 單篇文章 | 編輯後 invalidate，[id].vue 與 edit.vue 共用快取 |
+| `['whoami']` | 登入使用者 | Header 與文章頁共用，登出後 invalidate |
+
+- Mutation（POST / PATCH / DELETE）完成後呼叫 `invalidateQueries`，相關 `useQuery` 自動重新 fetch
+- SSR 支援：透過 `plugins/vue-query.ts` 的 `dehydrate` / `hydrate` 將伺服器端快取傳遞至客戶端，避免重複請求
 
 ## 環境變數
 
