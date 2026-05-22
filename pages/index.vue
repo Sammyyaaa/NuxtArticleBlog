@@ -43,8 +43,8 @@
           activeTag === null
             ? 'bg-amber-500 text-white'
             : isDark
-              ? 'bg-stone-800 text-stone-400 hover:text-amber-400'
-              : 'bg-stone-100 text-stone-500 hover:text-amber-600'
+              ? 'bg-stone-600 text-stone-300 hover:text-amber-400'
+              : 'bg-stone-200 text-stone-600 hover:text-amber-600'
         "
         @click="activeTag = null"
       >
@@ -58,8 +58,8 @@
           activeTag === tag
             ? 'bg-amber-500 text-white'
             : isDark
-              ? 'bg-stone-800 text-stone-400 hover:text-amber-400'
-              : 'bg-stone-100 text-stone-500 hover:text-amber-600'
+              ? 'bg-stone-600 text-stone-300 hover:text-amber-400'
+              : 'bg-stone-200 text-stone-600 hover:text-amber-600'
         "
         @click="activeTag = tag"
       >
@@ -103,8 +103,8 @@
                   :key="tag"
                   class="font-mono text-xs px-2 py-0.5 rounded"
                   :class="{
-                    'bg-stone-700 text-stone-400': isDark,
-                    'bg-stone-100 text-stone-500': !isDark
+                    'bg-stone-600 text-stone-300': isDark,
+                    'bg-stone-200 text-stone-600': !isDark
                   }"
                 >
                   {{ tag }}

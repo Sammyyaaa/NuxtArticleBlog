@@ -131,7 +131,7 @@
               v-for="tag in article.tags"
               :key="tag"
               class="font-mono text-xs px-2.5 py-0.5 rounded"
-              :class="{ 'bg-stone-800 text-stone-400': isDark, 'bg-stone-100 text-stone-500': !isDark }"
+              :class="{ 'bg-stone-600 text-stone-300': isDark, 'bg-stone-200 text-stone-600': !isDark }"
             >
               {{ tag }}
             </span>

@@ -69,8 +69,8 @@
                       type="button"
                       class="rounded px-2 py-1 text-xs font-mono transition-colors"
                       :class="{
-                        'bg-stone-700 text-stone-300 hover:bg-amber-600 hover:text-white': isDark,
-                        'bg-stone-100 text-stone-600 hover:bg-amber-500 hover:text-white': !isDark
+                        'bg-stone-600 text-stone-300 hover:bg-amber-600 hover:text-white': isDark,
+                        'bg-stone-200 text-stone-600 hover:bg-amber-500 hover:text-white': !isDark
                       }"
                       @click="addTag"
                     >
@@ -83,7 +83,7 @@
                     v-for="tag in articleData.tags"
                     :key="tag"
                     class="inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono text-xs"
-                    :class="{ 'bg-stone-700 text-stone-300': isDark, 'bg-stone-100 text-stone-600': !isDark }"
+                    :class="{ 'bg-stone-600 text-stone-300': isDark, 'bg-stone-200 text-stone-600': !isDark }"
                   >
                     {{ tag }}
                     <button type="button" class="hover:text-amber-500 transition-colors" @click="removeTag(tag)">×</button>
@@ -103,8 +103,8 @@
                     type="button"
                     class="rounded px-2 py-0.5 font-mono text-xs transition-colors"
                     :class="{
-                      'bg-stone-800 text-stone-400 hover:bg-amber-600 hover:text-white': isDark,
-                      'bg-stone-100 text-stone-500 hover:bg-amber-500 hover:text-white': !isDark
+                      'bg-stone-600 text-stone-300 hover:bg-amber-600 hover:text-white': isDark,
+                      'bg-stone-200 text-stone-600 hover:bg-amber-500 hover:text-white': !isDark
                     }"
                     @click="addExistingTag(tag)"
                   >

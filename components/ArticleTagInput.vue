@@ -7,8 +7,8 @@
         :key="tag"
         class="inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono text-xs"
         :class="{
-          'bg-stone-700 text-stone-300': isDark,
-          'bg-stone-100 text-stone-600': !isDark
+          'bg-stone-600 text-stone-300': isDark,
+          'bg-stone-200 text-stone-600': !isDark
         }"
       >
         {{ tag }}
