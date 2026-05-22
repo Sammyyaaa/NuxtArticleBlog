@@ -43,7 +43,7 @@ const options = computed(() => ({
       enable: true
     },
     number: {
-      value: 80
+      value: 40
     },
     size: {
       value: { min: 1, max: 5 }
@@ -75,7 +75,7 @@ const options = computed(() => ({
             distance: 120
           },
           number: {
-            value: 30
+            value: 15
           },
           size: {
             value: { min: 1, max: 5 }
