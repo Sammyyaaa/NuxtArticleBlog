@@ -114,6 +114,9 @@
                       'border-stone-300': !isDark
                     }"
                   />
+                  <p class="mt-1.5 font-mono text-xs text-stone-400">
+                    支援 Markdown 語法　# 標題　**粗體**　`程式碼`　- 清單
+                  </p>
                 </div>
               </div>
             </div>

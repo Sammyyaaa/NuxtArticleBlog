@@ -144,11 +144,10 @@
         <!-- ③ 文章內文 -->
         <div class="mx-auto w-full max-w-2xl px-6 mt-10 mb-16">
           <div
-            class="break-words whitespace-pre-line text-[17px] leading-9"
-            :class="{ 'text-stone-300': isDark, 'text-stone-600': !isDark }"
-          >
-            {{ article.content }}
-          </div>
+            class="prose prose-stone max-w-none text-[17px] leading-9"
+            :class="isDark ? 'prose-invert' : ''"
+            v-html="renderedContent"
+          />
 
           <!-- 底部分隔線 + 回首頁 -->
           <div class="mt-14 flex items-center gap-4">
@@ -176,6 +175,7 @@
 
 <script setup>
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { marked } from 'marked'
 
 const route = useRoute()
 const imageUrl = ref('')
@@ -251,6 +251,8 @@ watch(
   },
   { immediate: true }
 )
+
+const renderedContent = computed(() => marked.parse(article.content || ''))
 
 function onImageError(event) {
   event.target.src = '/article-img.png'

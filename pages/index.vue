@@ -9,16 +9,16 @@
     <div class="flex md:items-center mt-10 w-full px-6 lg:px-60 flex-col md:flex-row gap-4">
       <button
         class="flex items-center gap-1 cursor-pointer select-none transition-colors"
-        :class="{ 'text-stone-500 hover:text-amber-400': isDark, 'text-stone-400 hover:text-amber-600': !isDark }"
+        :class="{
+          'text-stone-500 hover:text-amber-400': isDark,
+          'text-stone-400 hover:text-amber-600': !isDark
+        }"
         @click="toggleSort"
       >
         <span class="font-mono text-xs uppercase tracking-widest">
           {{ sortAsc ? 'Oldest' : 'Latest' }}
         </span>
-        <Icon
-          :name="sortAsc ? 'heroicons:chevron-up' : 'heroicons:chevron-down'"
-          class="w-4 h-4"
-        />
+        <Icon :name="sortAsc ? 'heroicons:chevron-up' : 'heroicons:chevron-down'" class="w-4 h-4" />
       </button>
       <div class="flex flex-col md:flex-row items-start md:items-center gap-2">
         <input
@@ -53,7 +53,11 @@
           class="divide-y"
           :class="{ 'divide-stone-700': isDark, 'divide-stone-200': !isDark }"
         >
-          <article v-for="article in articlesResponse.articles" :key="article.id" class="py-8 group">
+          <article
+            v-for="article in articlesResponse.articles"
+            :key="article.id"
+            class="py-8 group"
+          >
             <NuxtLink class="block" :to="{ name: 'articles-id', params: { id: article.id } }">
               <time
                 class="font-mono text-xs uppercase tracking-widest"
@@ -74,7 +78,7 @@
                 class="mt-3 text-sm leading-relaxed line-clamp-2"
                 :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
               >
-                {{ article.content?.replace(/\n/g, ' ').substring(0, 120) }}
+                {{ stripMarkdown(article.content).substring(0, 120) }}
               </p>
               <span
                 class="mt-4 inline-flex items-center font-mono text-xs uppercase tracking-wider transition-colors"
@@ -96,7 +100,10 @@
         <NuxtLink
           v-if="currentPage > 1"
           class="font-mono text-xs uppercase tracking-wider transition-colors"
-          :class="{ 'text-stone-500 hover:text-amber-400': isDark, 'text-stone-400 hover:text-amber-600': !isDark }"
+          :class="{
+            'text-stone-500 hover:text-amber-400': isDark,
+            'text-stone-400 hover:text-amber-600': !isDark
+          }"
           :to="{ name: 'index', query: { page: currentPage - 1 } }"
         >
           ← Prev
@@ -110,7 +117,10 @@
         <NuxtLink
           v-if="!isSearching && articlesResponse.articles.length >= articlesResponse.pageSize"
           class="font-mono text-xs uppercase tracking-wider transition-colors"
-          :class="{ 'text-stone-500 hover:text-amber-400': isDark, 'text-stone-400 hover:text-amber-600': !isDark }"
+          :class="{
+            'text-stone-500 hover:text-amber-400': isDark,
+            'text-stone-400 hover:text-amber-600': !isDark
+          }"
           :to="{ name: 'index', query: { page: currentPage + 1 } }"
         >
           Next →
@@ -180,6 +190,9 @@ const {
 const date2LocaleString = (date) => {
   return new Date(date).toLocaleString()
 }
+
+const stripMarkdown = (text = '') =>
+  text.replace(/#{1,6}\s/g, '').replace(/[*_`>!\[\]]/g, '').replace(/\n+/g, ' ').trim()
 
 const toggleSort = () => {
   sortAsc.value = !sortAsc.value

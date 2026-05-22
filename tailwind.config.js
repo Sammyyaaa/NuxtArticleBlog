@@ -20,5 +20,5 @@ module.exports = {
       }
     }
   },
-  plugins: [] // 插件列表（目前為空）
+  plugins: [require('@tailwindcss/typography')]
 }
