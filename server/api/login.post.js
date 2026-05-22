@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     id: 1,
     nickname: 'accountUser',
     email: 'accountUser13579@gmail.com',
-    avatar: 'https://a.520gexing.com/uploads/allimg/2019012013/fq35kq1oppt.jpg'
+    avatar: '/COCO.jpg'
   }
 
   const maxAge = 60 * 60 * 24 * 7
