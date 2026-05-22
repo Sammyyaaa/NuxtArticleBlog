@@ -5,144 +5,116 @@
       ' h-[calc(100vh-65.81px)]': !articlesResponse || articlesResponse.articles.length < 4
     }"
   >
-    <div class="flex md:items-center mt-8 w-full px-6 lg:px-60 flex-col md:flex-row">
-      <div class="flex items-center justify-center">
-        <h1
-          class="text-3xl font-semibold"
-          :class="{ 'text-gray-400': isDark, 'text-gray-800': !isDark }"
-        >
-          {{ sortAsc ? '較舊文章' : '最新文章' }}
-        </h1>
+    <!-- 頁首：標題 + 搜尋 -->
+    <div class="flex md:items-center mt-10 w-full px-6 lg:px-60 flex-col md:flex-row gap-4">
+      <button
+        class="flex items-center gap-1 cursor-pointer select-none transition-colors"
+        :class="{ 'text-stone-500 hover:text-amber-400': isDark, 'text-stone-400 hover:text-amber-600': !isDark }"
+        @click="toggleSort"
+      >
+        <span class="font-mono text-xs uppercase tracking-widest">
+          {{ sortAsc ? 'Oldest' : 'Latest' }}
+        </span>
         <Icon
           :name="sortAsc ? 'heroicons:chevron-up' : 'heroicons:chevron-down'"
-          class="w-[18px] h-[18px] ml-2 cursor-pointer"
-          :class="{
-            'text-gray-400': isDark,
-            'text-gray-800': !isDark
-          }"
-          @click="toggleSort"
+          class="w-4 h-4"
         />
-      </div>
-      <div class="flex flex-col md:flex-row items-start md:items-center mt-3 md:mx-10 md:mt-0">
+      </button>
+      <div class="flex flex-col md:flex-row items-start md:items-center gap-2">
         <input
           v-model="searchArticle"
           type="text"
-          class="max-w-[300px] w-full md:w-[210px] h-[35px] rounded-md border px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          class="max-w-[300px] w-full md:w-[200px] h-[34px] rounded border px-3 py-1.5 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
           :class="{
-            'bg-gray-800 border-gray-600 text-white': isDark,
-            'border-gray-300': !isDark
+            'bg-stone-800 border-stone-600 text-stone-100': isDark,
+            'bg-white border-stone-300': !isDark
           }"
           placeholder="搜尋文章"
         />
-        <div class="flex max-w-[300px] w-full md:ml-2 mt-2 md:mt-0 justify-end md:justify-start">
-          <BlackAndWhiteButton @click="handleSearch"> 搜尋 </BlackAndWhiteButton>
-        </div>
+        <BlackAndWhiteButton @click="handleSearch"> 搜尋 </BlackAndWhiteButton>
       </div>
     </div>
-    <div class="my-8 flex w-full px-6 lg:px-60 flex-col">
+
+    <div class="mt-6 mb-10 flex w-full px-6 lg:px-60 flex-col">
       <div v-if="pending" class="flex h-[65vh] items-center justify-center">
-        <Icon class="h-16 w-16 text-gray-500" name="eos-icons:loading" />
+        <Icon class="h-12 w-12 text-stone-500" name="eos-icons:loading" />
       </div>
       <template v-else>
         <div v-if="error">
-          <span class="text-gray-500">發生錯誤，請稍後再試</span>
+          <span class="text-stone-500">發生錯誤，請稍後再試</span>
           <p class="my-2 text-rose-500">{{ error }}</p>
         </div>
         <div v-else-if="!articlesResponse || articlesResponse.articles.length === 0">
-          <span :class="{ 'text-gray-400': isDark, 'text-gray-600': !isDark }"
-            >目前尚無最新文章</span
-          >
+          <span :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }">目前尚無文章</span>
         </div>
+        <!-- 分隔線排版 -->
         <div
           v-else
-          class="md:border-l md:border-gray-200"
-          :class="{ 'md:border-gray-600': isDark }"
+          class="divide-y"
+          :class="{ 'divide-stone-700': isDark, 'divide-stone-200': !isDark }"
         >
-          <div class="flex flex-col space-y-4 md:pl-6">
-            <article
-              v-for="article in articlesResponse.articles"
-              :key="article.id"
-              class="flex flex-col md:flex-row md:items-baseline"
-            >
-              <NuxtLink
-                class="group md:ml-8 pl-2 flex cursor-pointer flex-col items-start pb-6 pt-1 transition"
-                :class="{
-                  'hover:bg-gray-700 hover:bg-opacity-80': isDark,
-                  'hover:bg-gray-100 hover:bg-opacity-65': !isDark
-                }"
-                :to="{
-                  name: 'articles-id',
-                  params: {
-                    id: article.id
-                  }
-                }"
-              >
-                <h2
-                  class="text-base font-semibold tracking-tight"
-                  :class="{ 'text-gray-400': isDark, 'text-gray-700': !isDark }"
-                >
-                  <span>{{ article.title }}</span>
-                </h2>
-                <time
-                  class="order-first mb-3 flex items-center text-sm md:hidden"
-                  :class="{ 'text-gray-400': isDark, 'text-gray-500': !isDark }"
-                >
-                  {{ date2LocaleString(article.updated_at) }}
-                </time>
-                <p
-                  class="mt-2 text-sm max-w-[300px]"
-                  :class="{ 'text-gray-400': isDark, 'text-gray-500': !isDark }"
-                >
-                  {{ article.content?.replace(/\n/g, ' ').substring(0, 50) }}...
-                </p>
-                <span
-                  aria-hidden="true"
-                  class="mt-4 flex items-center text-sm font-medium text-emerald-500"
-                >
-                  繼續閱讀
-                  <Icon name="ri:arrow-right-s-line" />
-                </span>
-              </NuxtLink>
+          <article v-for="article in articlesResponse.articles" :key="article.id" class="py-8 group">
+            <NuxtLink class="block" :to="{ name: 'articles-id', params: { id: article.id } }">
               <time
-                class="order-first mb-3 ml-3 mr-6 hidden items-center text-sm text-gray-500 md:flex"
+                class="font-mono text-xs uppercase tracking-widest"
+                :class="{ 'text-stone-500': isDark, 'text-stone-400': !isDark }"
               >
                 {{ date2LocaleString(article.updated_at) }}
               </time>
-            </article>
-          </div>
+              <h2
+                class="mt-3 font-serif text-2xl font-normal leading-snug transition-colors"
+                :class="{
+                  'text-stone-100 group-hover:text-amber-400': isDark,
+                  'text-stone-800 group-hover:text-amber-600': !isDark
+                }"
+              >
+                {{ article.title }}
+              </h2>
+              <p
+                class="mt-3 text-sm leading-relaxed line-clamp-2"
+                :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
+              >
+                {{ article.content?.replace(/\n/g, ' ').substring(0, 120) }}
+              </p>
+              <span
+                class="mt-4 inline-flex items-center font-mono text-xs uppercase tracking-wider transition-colors"
+                :class="{
+                  'text-stone-500 group-hover:text-amber-400': isDark,
+                  'text-stone-400 group-hover:text-amber-600': !isDark
+                }"
+              >
+                閱讀文章
+                <Icon name="ri:arrow-right-s-line" class="ml-0.5" />
+              </span>
+            </NuxtLink>
+          </article>
         </div>
       </template>
 
-      <nav v-if="articlesResponse" class="mt-2 flex items-center justify-between px-4 py-3 sm:px-6">
-        <div class="flex flex-1 justify-center sm:justify-end">
-          <NuxtLink
-            v-if="currentPage > 1"
-            class="flex items-center text-xl font-medium text-gray-400 hover:text-emerald-500"
-            :to="{
-              name: 'index',
-              query: {
-                page: currentPage - 1
-              }
-            }"
-          >
-            <Icon name="ri:arrow-left-s-line" />
-          </NuxtLink>
-          <label class="mx-2 text-sm" :class="{ 'text-gray-400': isDark, 'text-gray-600': !isDark }"
-            >第 {{ articlesResponse.page }} 頁</label
-          >
-          <NuxtLink
-            v-if="!isSearching && articlesResponse.articles.length >= articlesResponse.pageSize"
-            class="flex items-center text-xl font-medium text-gray-400 hover:text-emerald-500"
-            :to="{
-              name: 'index',
-              query: {
-                page: currentPage + 1
-              }
-            }"
-          >
-            <Icon name="ri:arrow-right-s-line" />
-          </NuxtLink>
-        </div>
+      <!-- 分頁 -->
+      <nav v-if="articlesResponse" class="mt-4 flex items-center justify-center gap-6 py-3">
+        <NuxtLink
+          v-if="currentPage > 1"
+          class="font-mono text-xs uppercase tracking-wider transition-colors"
+          :class="{ 'text-stone-500 hover:text-amber-400': isDark, 'text-stone-400 hover:text-amber-600': !isDark }"
+          :to="{ name: 'index', query: { page: currentPage - 1 } }"
+        >
+          ← Prev
+        </NuxtLink>
+        <span
+          class="font-mono text-xs"
+          :class="{ 'text-stone-500': isDark, 'text-stone-400': !isDark }"
+        >
+          {{ articlesResponse.page }}
+        </span>
+        <NuxtLink
+          v-if="!isSearching && articlesResponse.articles.length >= articlesResponse.pageSize"
+          class="font-mono text-xs uppercase tracking-wider transition-colors"
+          :class="{ 'text-stone-500 hover:text-amber-400': isDark, 'text-stone-400 hover:text-amber-600': !isDark }"
+          :to="{ name: 'index', query: { page: currentPage + 1 } }"
+        >
+          Next →
+        </NuxtLink>
       </nav>
     </div>
 
@@ -198,7 +170,8 @@ const {
     return $fetch('/api/articles', {
       query: {
         page: currentPage.value,
-        pageSize: 10
+        pageSize: 10,
+        sort: activeSort.value
       }
     })
   }
@@ -210,7 +183,7 @@ const date2LocaleString = (date) => {
 
 const toggleSort = () => {
   sortAsc.value = !sortAsc.value
-  handleSearch()
+  activeSort.value = sortAsc.value ? 'ASC' : 'DESC'
 }
 
 // 來自 pages/index.vue

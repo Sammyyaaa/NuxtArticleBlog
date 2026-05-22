@@ -1,15 +1,16 @@
 import { pool } from '@/server/utils/db'
 
 export default defineEventHandler(async (event) => {
-  const query = await getQuery(event) // 獲取網址結尾查詢參數
+  const query = await getQuery(event)
 
-  const page = Math.max(parseInt(query.page) || 1, 1) // 獲取網址結尾查詢參數 api/articles?page=1，表示第幾頁
-  const pageSize = Math.min(Math.max(parseInt(query.pageSize) || 10, 1), 100) // 獲取網址結尾查詢參數 api/articles?page=1&pageSize=2，控制文章數量
+  const page = Math.max(parseInt(query.page) || 1, 1)
+  const pageSize = Math.min(Math.max(parseInt(query.pageSize) || 10, 1), 100)
+  const sort = query.sort === 'ASC' ? 'ASC' : 'DESC'
 
   const articleRecords = await pool
-    .query('SELECT * FROM "article" ORDER BY "updated_at" DESC OFFSET $1 LIMIT $2;', [
-      (page - 1) * pageSize, // 計算 OFFSET（跳過的記錄數）
-      pageSize // 設定 LIMIT（每頁顯示的記錄數）
+    .query(`SELECT * FROM "article" ORDER BY "updated_at" ${sort} OFFSET $1 LIMIT $2;`, [
+      (page - 1) * pageSize,
+      pageSize
     ])
     .then((result) => result.rows)
     .catch((error) => {

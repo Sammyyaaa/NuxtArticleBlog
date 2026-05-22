@@ -34,6 +34,10 @@ useSeoMeta({
 </script>
 
 <style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
 /* Chrome, Safari, Edge 等使用 WebKit 引擎的瀏覽器 */
 ::-webkit-scrollbar {
   width: 8px; /* 調整滾動條寬度 */

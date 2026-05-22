@@ -1,138 +1,118 @@
 <template>
-  <!-- 登入頁面 -->
   <div
-    class="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 h-[100vh] overflow-hidden"
-    :class="{ 'bg-gray-800': isDark }"
+    class="flex flex-col items-center justify-center px-4 h-screen border-t-4 border-amber-500"
+    :class="{ 'bg-stone-900': isDark, 'bg-stone-50': !isDark }"
   >
-    <div class="w-full max-w-md">
-      <div class="flex flex-col items-center">
+    <div class="w-full max-w-sm">
+
+      <!-- 品牌 -->
+      <div class="mb-10 text-center">
         <NuxtLink to="/">
-          <div class="flex items-center justify-between">
-            <div class="mr-3">
-              <!-- nuxt-icon 元件 -->
-              <Icon
-                class="w-[50px] h-[50px] md:w-[70px] md:h-[70px]"
-                name="material-symbols:edit-note"
-                :class="{ 'text-white': isDark, 'text-gray-700': !isDark }"
-              />
-            </div>
-            <div
-              class="hidden h-6 text-3xl font-semibold text-gray-700 sm:block"
-              :class="{ 'text-white': isDark }"
-            >
-              Article Blog
-            </div>
-          </div>
+          <span
+            class="font-serif text-3xl tracking-wide"
+            :class="{ 'text-stone-100': isDark, 'text-stone-800': !isDark }"
+          >
+            Article Blog
+          </span>
         </NuxtLink>
-        <h2
-          class="mt-3 text-center text-xl md:text-2xl font-bold tracking-tight"
-          :class="{ 'text-gray-200': isDark, 'text-gray-900': !isDark }"
-        >
-          登入帳號
-        </h2>
+        <p class="mt-3 font-mono text-xs uppercase tracking-widest text-stone-400">Sign In</p>
       </div>
 
-      <div class="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
-        <div
-          class="px-4 py-8 shadow-md sm:rounded-lg sm:px-10"
-          :class="{ 'bg-gray-700': isDark, 'bg-white': !isDark }"
-        >
-          <form class="space-y-6" @submit.prevent="handleLogin">
-            <div>
-              <label
-                for="account"
-                class="block text-sm font-medium"
-                :class="{ 'text-gray-300': isDark, 'text-gray-700': !isDark }"
-              >
-                帳號
-              </label>
-              <div class="mt-1">
-                <input
-                  id="account"
-                  v-model="loginData.account"
-                  name="account"
-                  type="text"
-                  autocomplete="account"
-                  required
-                  class="block w-full appearance-none rounded-md border px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  :class="{
-                    'bg-gray-800 border-gray-600 text-white': isDark,
-                    'border-gray-300': !isDark
-                  }"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label
-                for="password"
-                class="block text-sm font-medium"
-                :class="{ 'text-gray-300': isDark, 'text-gray-700': !isDark }"
-              >
-                密碼
-              </label>
-              <div class="mt-1 relative">
-                <input
-                  id="password"
-                  v-model="loginData.password"
-                  name="password"
-                  :type="showPassword ? 'text' : 'password'"
-                  autocomplete="current-password"
-                  required
-                  class="block w-full appearance-none rounded-md border px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  :class="{
-                    'bg-gray-800 border-gray-600 text-white': isDark,
-                    'border-gray-300': !isDark
-                  }"
-                />
-                <!-- 眼睛圖示 -->
-                <button
-                  type="button"
-                  class="absolute inset-y-0 right-0 flex items-center px-3"
-                  :class="{
-                    'text-gray-300 hover:text-gray-500': isDark,
-                    'text-gray-500 hover:text-gray-700': !isDark
-                  }"
-                  @click="togglePassword"
-                >
-                  <Icon v-if="showPassword" name="heroicons-outline:eye" class="h-5 w-5" />
-                  <Icon v-else name="heroicons-outline:eye-off" class="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                class="flex w-full justify-center rounded-md border border-transparent bg-emerald-600 hover:bg-emerald-700 transition px-4 py-2 text-white"
-              >
-                登入
-              </button>
-            </div>
-          </form>
+      <!-- 表單 -->
+      <form class="space-y-6" @submit.prevent="handleLogin">
+        <div>
+          <label
+            for="account"
+            class="block font-mono text-xs uppercase tracking-widest"
+            :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
+          >
+            帳號
+          </label>
+          <div class="mt-2">
+            <input
+              id="account"
+              v-model="loginData.account"
+              name="account"
+              type="text"
+              autocomplete="account"
+              required
+              class="block w-full rounded border px-3 py-2 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              :class="{
+                'bg-stone-800 border-stone-600 text-stone-100': isDark,
+                'bg-white border-stone-300': !isDark
+              }"
+            />
+          </div>
         </div>
+
+        <div>
+          <label
+            for="password"
+            class="block font-mono text-xs uppercase tracking-widest"
+            :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
+          >
+            密碼
+          </label>
+          <div class="mt-2 relative">
+            <input
+              id="password"
+              v-model="loginData.password"
+              name="password"
+              :type="showPassword ? 'text' : 'password'"
+              autocomplete="current-password"
+              required
+              class="block w-full rounded border px-3 py-2 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              :class="{
+                'bg-stone-800 border-stone-600 text-stone-100': isDark,
+                'bg-white border-stone-300': !isDark
+              }"
+            />
+            <button
+              type="button"
+              class="absolute inset-y-0 right-0 flex items-center px-3 transition-colors"
+              :class="{ 'text-stone-400 hover:text-stone-200': isDark, 'text-stone-400 hover:text-stone-600': !isDark }"
+              @click="togglePassword"
+            >
+              <Icon v-if="showPassword" name="heroicons-outline:eye" class="h-4 w-4" />
+              <Icon v-else name="heroicons-outline:eye-off" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full rounded border border-transparent bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700"
+        >
+          登入
+        </button>
+      </form>
+
+      <!-- 底部分隔線 -->
+      <div class="mt-10 flex items-center gap-4">
+        <div class="h-px flex-1" :class="{ 'bg-stone-700': isDark, 'bg-stone-200': !isDark }" />
+        <span class="text-amber-500">✦</span>
+        <div class="h-px flex-1" :class="{ 'bg-stone-700': isDark, 'bg-stone-200': !isDark }" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { useQueryClient } from '@tanstack/vue-query'
+
 definePageMeta({
-  layout: false // 登入頁面不顯示 Header
+  layout: false
 })
+
+const isDark = useDark()
+const queryClient = useQueryClient()
+const showPassword = ref(false)
 
 const loginData = reactive({
   account: 'accountUser',
   password: '1234567'
 })
-const loginError = () => {
-  alert('登入失敗')
-}
-const isDark = useDark()
 
-const showPassword = ref(false) // 控制密碼顯示與隱藏
-
-// 切換密碼顯示狀態
 const togglePassword = () => {
   showPassword.value = !showPassword.value
 }
@@ -147,9 +127,11 @@ const handleLogin = async () => {
   })
 
   if (data.value) {
+    // 清除 whoami 快取，讓 Header 重新 fetch 取得登入後的使用者資料
+    queryClient.removeQueries({ queryKey: ['whoami'] })
     navigateTo('/')
   } else {
-    loginError()
+    alert('登入失敗')
   }
 }
 </script>

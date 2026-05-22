@@ -27,15 +27,15 @@ const options = computed(() => ({
   },
   background: {
     color: {
-      value: isDark.value ? '#1f2937' : '#fff'
+      value: isDark.value ? '#1c1917' : '#fafaf9'
     }
   },
   particles: {
     color: {
-      value: isDark.value ? '#6b7280' : '#d1d5db'
+      value: isDark.value ? '#78716c' : '#e7e5e4'
     },
     links: {
-      color: isDark.value ? '#6b7280' : '#d1d5db',
+      color: isDark.value ? '#78716c' : '#e7e5e4',
       enable: true,
       distance: 175
     },

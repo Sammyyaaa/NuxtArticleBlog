@@ -12,7 +12,13 @@ module.exports = {
     './app.config.{js,ts}' // 匹配根目錄中的 app.config.js 或 app.config.ts 文件
   ],
   theme: {
-    extend: {} // 自定義主題擴展點（目前為空）
+    extend: {
+      fontFamily: {
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'system-ui', 'sans-serif'],
+        serif: ['Georgia', 'Cambria', "'Times New Roman'", 'ui-serif', 'serif'],
+        mono: ['ui-monospace', 'Cascadia Code', 'Source Code Pro', 'Menlo', 'Consolas', 'monospace']
+      }
+    }
   },
   plugins: [] // 插件列表（目前為空）
 }

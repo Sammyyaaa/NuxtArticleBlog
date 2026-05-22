@@ -3,30 +3,30 @@
     <div class="w-full max-w-3xl justify-center">
       <form
         class="w-full space-y-8 divide-y"
-        :class="{ 'divide-gray-700': isDark, 'divide-gray-200': !isDark }"
+        :class="{ 'divide-stone-700': isDark, 'divide-stone-200': !isDark }"
         @submit.prevent="handleSubmit"
       >
-        <div class="space-y-8 divide-y divide-gray-200">
+        <div class="space-y-8 divide-y divide-stone-200">
           <div>
-            <div class="mt-6">
+            <div class="mt-8">
               <h3
-                class="text-xl font-medium leading-6"
-                :class="{ 'text-gray-300': isDark, 'text-gray-900': !isDark }"
+                class="font-serif text-2xl font-normal tracking-wide"
+                :class="{ 'text-stone-100': isDark, 'text-stone-800': !isDark }"
               >
                 編輯文章
               </h3>
             </div>
 
-            <div class="mt-6 flex flex-col gap-6">
+            <div class="mt-8 flex flex-col gap-6">
               <div>
                 <label
                   for="title"
-                  class="block text-sm font-medium"
-                  :class="{ 'text-gray-300': isDark, 'text-gray-700': !isDark }"
+                  class="block text-xs font-mono uppercase tracking-widest"
+                  :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
                 >
                   文章標題
                 </label>
-                <div class="mt-1">
+                <div class="mt-2">
                   <input
                     id="title"
                     v-model="articleData.title"
@@ -35,10 +35,10 @@
                     name="title"
                     type="text"
                     autocomplete="title"
-                    class="block w-full appearance-none rounded-md border px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    class="block w-full appearance-none rounded border px-3 py-2 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
                     :class="{
-                      'bg-gray-800 border-gray-600 text-white': isDark,
-                      'border-gray-300': !isDark
+                      'bg-stone-800 border-stone-600 text-stone-100': isDark,
+                      'border-stone-300': !isDark
                     }"
                   />
                 </div>
@@ -47,12 +47,12 @@
               <div>
                 <label
                   for="cover"
-                  class="block text-sm font-medium"
-                  :class="{ 'text-gray-300': isDark, 'text-gray-700': !isDark }"
+                  class="block text-xs font-mono uppercase tracking-widest"
+                  :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
                 >
                   代表性圖片連結
                 </label>
-                <div class="mt-1">
+                <div class="mt-2">
                   <input
                     id="cover"
                     v-model="articleData.cover"
@@ -60,10 +60,10 @@
                     name="cover"
                     type="text"
                     autocomplete="cover"
-                    class="block w-full appearance-none rounded-md border px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    class="block w-full appearance-none rounded border px-3 py-2 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
                     :class="{
-                      'bg-gray-800 border-gray-600 text-white': isDark,
-                      'border-gray-300': !isDark
+                      'bg-stone-800 border-stone-600 text-stone-100': isDark,
+                      'border-stone-300': !isDark
                     }"
                   />
                 </div>
@@ -72,32 +72,24 @@
               <div>
                 <label
                   for="img"
-                  class="block text-sm font-medium"
-                  :class="{ 'text-gray-300': isDark, 'text-gray-700': !isDark }"
+                  class="block text-xs font-mono uppercase tracking-widest"
+                  :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
                 >
                   {{
                     uploadImgFileName
-                      ? '圖片上傳中 :'
+                      ? '上傳中：' + uploadImgFileName
                       : articleData.img_filename
-                        ? '圖片已上傳 :'
+                        ? '已上傳：' + articleData.img_filename
                         : '上傳圖片'
                   }}
-                  {{
-                    articleData.img_filename
-                      ? articleData.img_filename
-                      : uploadImgFileName
-                        ? uploadImgFileName
-                        : ''
-                  }}
                 </label>
-                <div class="mt-1">
+                <div class="mt-2">
                   <button
                     type="button"
-                    class="block w-full appearance-none rounded-md border px-3 py-2 placeholder-gray-400 transition"
+                    class="block w-full appearance-none rounded border px-3 py-2 text-sm transition-colors"
                     :class="{
-                      'bg-gray-800 border-gray-600 text-white hover:text-gray-700 hover:bg-gray-300':
-                        isDark,
-                      'border-gray-300 hover:text-white hover:bg-gray-500': !isDark
+                      'bg-stone-800 border-stone-600 text-stone-300 hover:bg-stone-700': isDark,
+                      'border-stone-300 text-stone-600 hover:bg-stone-100': !isDark
                     }"
                     @click="handleUpload"
                   >
@@ -115,22 +107,23 @@
               <div>
                 <label
                   for="content"
-                  class="block text-sm font-medium"
-                  :class="{ 'text-gray-300': isDark, 'text-gray-700': !isDark }"
-                  >文章內容</label
+                  class="block text-xs font-mono uppercase tracking-widest"
+                  :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
                 >
-                <div class="mt-1">
+                  文章內容
+                </label>
+                <div class="mt-2">
                   <textarea
                     id="content"
                     v-model="articleData.content"
                     required
                     name="content"
-                    rows="10"
+                    rows="12"
                     placeholder="請填寫文章內容..."
-                    class="block min-h-[45px] w-full appearance-none rounded-md border px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    class="block min-h-[45px] w-full appearance-none rounded border px-3 py-2 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
                     :class="{
-                      'bg-gray-800 border-gray-600 text-white': isDark,
-                      'border-gray-300': !isDark
+                      'bg-stone-800 border-stone-600 text-stone-100': isDark,
+                      'border-stone-300': !isDark
                     }"
                   />
                 </div>
@@ -140,7 +133,7 @@
         </div>
 
         <div class="py-5">
-          <div class="flex justify-end">
+          <div class="flex justify-end gap-3">
             <BlackAndWhiteButton :height="37.81" :width="61.82">
               <NuxtLink class="absolute inset-0 flex items-center justify-center" to="/">
                 取消
@@ -148,9 +141,9 @@
             </BlackAndWhiteButton>
             <button
               type="submit"
-              class="ml-3 inline-flex justify-center rounded-md border border-transparent bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700"
+              class="inline-flex justify-center rounded border border-transparent bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700"
             >
-              編輯
+              儲存
             </button>
           </div>
         </div>

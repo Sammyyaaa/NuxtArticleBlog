@@ -1,127 +1,102 @@
 <template>
-  <!-- 水平導覽列 -->
   <header class="flex w-full justify-center">
     <nav
-      class="flex w-full items-center justify-between px-6 lg:px-60 py-2 border-b-2"
+      class="flex w-full items-center justify-between px-6 lg:px-60 py-3 border-b-2 border-amber-500/60"
       :class="{
-        'bg-gray-800 border-gray-600': isDark,
-        'bg-white border-gray-200': !isDark
+        'bg-stone-900': isDark,
+        'bg-stone-50': !isDark
       }"
     >
-      <div>
-        <NuxtLink to="/">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center mr-3">
-              <!-- nuxt-icon 元件 -->
-              <Icon
-                class="h-12 w-12"
-                name="material-symbols:edit-note"
-                :class="{ 'text-white': isDark, 'text-gray-700': !isDark }"
-              />
-            </div>
-            <div
-              class="hidden h-6 text-2xl font-semibold text-gray-700 sm:block"
-              :class="{ 'text-white': isDark }"
-            >
-              Article Blog
-            </div>
-          </div>
-        </NuxtLink>
-      </div>
+      <!-- 品牌名 -->
+      <NuxtLink to="/">
+        <span
+          class="font-serif text-2xl tracking-wide"
+          :class="{ 'text-stone-100': isDark, 'text-stone-800': !isDark }"
+        >
+          Article Blog
+        </span>
+      </NuxtLink>
 
-      <div class="flex flex-row">
+      <div class="flex flex-row items-center gap-10">
         <!-- 亮暗主題切換按鈕 -->
-        <ToggleThemeButton class="mr-3" />
+        <ToggleThemeButton />
 
-        <!-- 判斷有資料時顯示 UI -->
+        <!-- 登入狀態：顯示使用者選單 -->
         <div v-if="userInfo" class="group relative z-30">
           <label for="avatar" class="cursor-pointer">
             <img
-              class="inline-block h-10 w-10 rounded-full bg-white/90 object-cover object-center p-0.5 shadow-md"
+              class="inline-block h-9 w-9 rounded-full object-cover object-center ring-2 ring-amber-500/40"
               :src="userInfo.avatar"
               alt="使用者選單"
             />
           </label>
-          <!-- Popup UI -->
-          <div class="absolute hidden right-0 w-60 pt-0.5 text-gray-700 group-hover:block">
+          <!-- Popup -->
+          <div class="absolute hidden right-0 w-56 pt-1 group-hover:block">
             <div
-              class="mt-1 divide-y rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden"
+              class="divide-y rounded-md shadow-xl overflow-hidden"
               :class="{
-                'border-2 border-gray-600 divide-gray-700': isDark,
-                'divide-gray-100': isDark
+                'bg-stone-800 divide-stone-700 ring-1 ring-stone-600': isDark,
+                'bg-white divide-stone-100 ring-1 ring-stone-200': !isDark
               }"
             >
               <div
                 class="flex items-center px-4 py-3"
-                :class="{ 'bg-gray-800 text-white': isDark }"
+                :class="{ 'text-stone-100': isDark, 'text-stone-700': !isDark }"
               >
                 <img
                   :src="userInfo.avatar"
-                  class="inline-block h-9 w-9 rounded-full bg-white/90 object-cover object-center p-0.5 shadow"
+                  class="inline-block h-8 w-8 rounded-full object-cover object-center"
                 />
-                <div class="ml-3.5 flex-grow overflow-hidden">
-                  <p class="overflow-hidden text-ellipsis font-medium">
+                <div class="ml-3 flex-grow overflow-hidden">
+                  <p class="overflow-hidden text-ellipsis text-sm font-medium">
                     {{ userInfo.nickname }}
                   </p>
-                  <p
-                    class="overflow-hidden text-ellipsis text-xs text-gray-500"
-                    :class="{ 'text-white': isDark }"
-                  >
+                  <p class="overflow-hidden text-ellipsis text-xs text-stone-400 mt-0.5">
                     {{ userInfo.email }}
                   </p>
                 </div>
               </div>
-              <div class="group/menu-item px-1 py-1" :class="{ 'bg-gray-800 text-white': isDark }">
+              <div
+                class="group/menu-item px-1 py-1"
+                :class="{ 'bg-stone-800': isDark, 'bg-white': !isDark }"
+              >
                 <NuxtLink
-                  class="flex w-full items-center rounded-md px-2 py-2 text-sm"
+                  class="flex w-full items-center rounded px-3 py-2 text-sm transition-colors"
                   :class="{
-                    'group-hover/menu-item:bg-white group-hover/menu-item:text-gray-700': isDark,
-                    'group-hover/menu-item:text-white group-hover/menu-item:bg-gray-700': !isDark
+                    'text-stone-300 hover:bg-stone-700': isDark,
+                    'text-stone-600 hover:bg-stone-100': !isDark
                   }"
                   to="/articles/create"
                 >
-                  <Icon
-                    class="mr-2 h-5 w-5 text-emerald-400"
-                    :class="{
-                      'group-hover/menu-item:text-gray-700': isDark,
-                      'group-hover/menu-item:text-white': !isDark
-                    }"
-                    name="ri:pencil-line"
-                  />
+                  <Icon class="mr-2 h-4 w-4 text-amber-500" name="ri:pencil-line" />
                   撰寫文章
                 </NuxtLink>
               </div>
-              <div class="group/menu-item px-1 py-1" :class="{ 'bg-gray-800 text-white': isDark }">
+              <div
+                class="group/menu-item px-1 py-1"
+                :class="{ 'bg-stone-800': isDark, 'bg-white': !isDark }"
+              >
                 <button
-                  class="flex w-full items-center rounded-md px-2 py-2 text-sm"
+                  class="flex w-full items-center rounded px-3 py-2 text-sm transition-colors"
                   :class="{
-                    'group-hover/menu-item:bg-white group-hover/menu-item:text-gray-700': isDark,
-                    'group-hover/menu-item:text-white group-hover/menu-item:bg-gray-700': !isDark
+                    'text-stone-300 hover:bg-stone-700': isDark,
+                    'text-stone-600 hover:bg-stone-100': !isDark
                   }"
                   @click="handleLogout"
                 >
-                  <Icon
-                    class="mr-2 h-5 w-5 text-emerald-400"
-                    :class="{
-                      'group-hover/menu-item:text-gray-700': isDark,
-                      'group-hover/menu-item:text-white': !isDark
-                    }"
-                    name="ri:logout-box-line"
-                  />
+                  <Icon class="mr-2 h-4 w-4 text-amber-500" name="ri:logout-box-line" />
                   登出
                 </button>
               </div>
             </div>
           </div>
         </div>
-        <!-- 無資料時顯示登入按鈕 -->
+
+        <!-- 未登入：顯示登入連結 -->
         <NuxtLink
           v-else
-          class="px-3 py-2 font-semibold transition hover:text-emerald-500"
-          :class="{
-            'text-gray-300': isDark,
-            'text-gray-700': !isDark
-          }"
+          class="text-sm font-medium transition-colors hover:text-amber-500"
+          :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
           to="/login"
         >
           登入
@@ -152,7 +127,7 @@ const queryClient = useQueryClient()
 const { mutate: logout } = useMutation({
   mutationFn: () => $fetch('/api/session', { method: 'DELETE' }),
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['whoami'] })
+    queryClient.setQueryData(['whoami'], null)
     if (route.path === '/articles/create' || route.path === '/articles/edit') {
       navigateTo('/')
     }
