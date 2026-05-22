@@ -109,9 +109,11 @@
 <script setup>
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 
-// 來自 components/LayoutHeader.vue
-// 原本: await useFetch('/api/whoami') + useState('userInfo') + watch 同步到全域狀態
-// 改為: useQuery 管理，queryKey: ['whoami'] 讓其他元件（如 pages/articles/[id].vue）可共用快取，不重複請求
+// ─── useQuery: 登入使用者資訊 ───────────────────────────────────────────────
+// queryKey: ['whoami']
+// 全域共享快取：Header、文章詳情頁都使用相同的 queryKey，
+// 只會打一次 /api/whoami，其他元件直接讀快取，不重複請求。
+// （原本是 useFetch + useState('userInfo') + watch 手動同步，現在由 TanStack Query 統一管理）
 const { data: userInfo } = useQuery({
   queryKey: ['whoami'],
   queryFn: () => $fetch('/api/whoami')
@@ -121,9 +123,10 @@ const route = useRoute()
 const isDark = useDark()
 const queryClient = useQueryClient()
 
-// 來自 components/LayoutHeader.vue
-// 原本: $fetch('/api/session', DELETE).then(() => userInfo.value = null)
-// 改為: useMutation，成功後 invalidateQueries(['whoami']) 讓 userInfo 自動清空並觸發重新整理
+// ─── useMutation: 登出 ───────────────────────────────────────────────────────
+// 登出成功後，使用 setQueryData(['whoami'], null) 立即清空快取，
+// UI 瞬間切換到「未登入」狀態，不需等待背景 refetch。
+// （若用 invalidateQueries 則要等 refetch 完成才更新 UI，有短暫延遲）
 const { mutate: logout } = useMutation({
   mutationFn: () => $fetch('/api/session', { method: 'DELETE' }),
   onSuccess: () => {

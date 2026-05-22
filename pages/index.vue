@@ -35,6 +35,38 @@
       </div>
     </div>
 
+    <!-- 標籤篩選列（搜尋列下方） -->
+    <div class="mt-4 w-full px-6 lg:px-60 flex flex-wrap gap-2">
+      <button
+        class="font-mono text-xs px-2.5 py-1 rounded transition-colors"
+        :class="
+          activeTag === null
+            ? 'bg-amber-500 text-white'
+            : isDark
+              ? 'bg-stone-800 text-stone-400 hover:text-amber-400'
+              : 'bg-stone-100 text-stone-500 hover:text-amber-600'
+        "
+        @click="activeTag = null"
+      >
+        全部
+      </button>
+      <button
+        v-for="tag in allTags || []"
+        :key="tag"
+        class="font-mono text-xs px-2.5 py-1 rounded transition-colors"
+        :class="
+          activeTag === tag
+            ? 'bg-amber-500 text-white'
+            : isDark
+              ? 'bg-stone-800 text-stone-400 hover:text-amber-400'
+              : 'bg-stone-100 text-stone-500 hover:text-amber-600'
+        "
+        @click="activeTag = tag"
+      >
+        {{ tag }}
+      </button>
+    </div>
+
     <div class="mt-6 mb-10 flex w-full px-6 lg:px-60 flex-col">
       <div v-if="pending" class="flex h-[65vh] items-center justify-center">
         <Icon class="h-12 w-12 text-stone-500" name="eos-icons:loading" />
@@ -65,8 +97,21 @@
               >
                 {{ date2LocaleString(article.updated_at) }}
               </time>
+              <div v-if="article.tags?.length" class="mt-3 flex flex-wrap gap-1.5">
+                <span
+                  v-for="tag in article.tags"
+                  :key="tag"
+                  class="font-mono text-xs px-2 py-0.5 rounded"
+                  :class="{
+                    'bg-stone-700 text-stone-400': isDark,
+                    'bg-stone-100 text-stone-500': !isDark
+                  }"
+                >
+                  {{ tag }}
+                </span>
+              </div>
               <h2
-                class="mt-3 font-serif text-2xl font-normal leading-snug transition-colors"
+                class="mt-2 font-serif text-2xl font-normal leading-snug transition-colors"
                 :class="{
                   'text-stone-100 group-hover:text-amber-400': isDark,
                   'text-stone-800 group-hover:text-amber-600': !isDark
@@ -142,16 +187,30 @@ const isDark = useDark()
 const searchArticle = ref('')
 const isSearching = ref(false)
 const sortAsc = ref(false)
-// 追蹤實際套用的搜尋關鍵字與排序，與輸入框的 searchArticle 分開
-// 點下搜尋才更新，避免每次輸入都觸發 query
 const activeSearch = ref('')
 const activeSort = ref('DESC')
+const activeTag = ref(null)
 
-// 來自 pages/index.vue
-// 原本: await useFetch('/api/articles', { query: { page, pageSize } })
-//      搜尋時用 $fetch('/api/article', ...) 手動覆寫 articlesResponse.value
-// 改為: 單一 useQuery，queryKey 包含 page / isSearching / activeSearch / activeSort
-//      任一 ref 改變，TanStack Query 自動選擇正確的 endpoint 重新 fetch
+// ─── useQuery: 所有標籤 ──────────────────────────────────────────────────────
+// queryKey: ['tags']
+// 取得資料庫中所有不重複的標籤，顯示在搜尋列下方作為篩選按鈕。
+// 在新增/編輯/刪除文章的 mutation 成功後，此快取會被 removeQueries 清除，
+// 確保標籤列表永遠是最新狀態。
+const { data: allTags } = useQuery({
+  queryKey: ['tags'],
+  queryFn: () => $fetch('/api/tags')
+})
+
+// ─── useQuery: 文章列表 ──────────────────────────────────────────────────────
+// queryKey: ['articles', { page, search, sort, isSearching, tag }]
+//
+// 核心設計：queryKey 使用 computed，包含所有影響查詢結果的狀態。
+// 當任何一個 ref（分頁/搜尋/排序/標籤篩選）改變時，queryKey 隨之變化，
+// TanStack Query 自動偵測到新的 key 並重新 fetch，無需手動呼叫。
+//
+// queryFn 根據是否為搜尋模式選擇不同的 endpoint：
+//   - 一般瀏覽 → GET /api/articles（支援分頁 + 排序 + 標籤篩選）
+//   - 關鍵字搜尋 → GET /api/article（支援 ILIKE 全文搜尋 + 排序）
 const {
   isPending: pending,
   data: articlesResponse,
@@ -163,7 +222,8 @@ const {
       page: isSearching.value ? 1 : currentPage.value,
       search: activeSearch.value,
       sort: activeSort.value,
-      isSearching: isSearching.value
+      isSearching: isSearching.value,
+      tag: activeTag.value
     }
   ]),
   queryFn: () => {
@@ -181,7 +241,8 @@ const {
       query: {
         page: currentPage.value,
         pageSize: 10,
-        sort: activeSort.value
+        sort: activeSort.value,
+        tag: activeTag.value
       }
     })
   }
@@ -192,7 +253,11 @@ const date2LocaleString = (date) => {
 }
 
 const stripMarkdown = (text = '') =>
-  text.replace(/#{1,6}\s/g, '').replace(/[*_`>!\[\]]/g, '').replace(/\n+/g, ' ').trim()
+  text
+    .replace(/#{1,6}\s/g, '')
+    .replace(/[*_`>![\]]/g, '')
+    .replace(/\n+/g, ' ')
+    .trim()
 
 const toggleSort = () => {
   sortAsc.value = !sortAsc.value

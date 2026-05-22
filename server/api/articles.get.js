@@ -6,12 +6,13 @@ export default defineEventHandler(async (event) => {
   const page = Math.max(parseInt(query.page) || 1, 1)
   const pageSize = Math.min(Math.max(parseInt(query.pageSize) || 10, 1), 100)
   const sort = query.sort === 'ASC' ? 'ASC' : 'DESC'
+  const tag = query.tag || null
 
   const articleRecords = await pool
-    .query(`SELECT * FROM "article" ORDER BY "updated_at" ${sort} OFFSET $1 LIMIT $2;`, [
-      (page - 1) * pageSize,
-      pageSize
-    ])
+    .query(
+      `SELECT * FROM "article" WHERE ($3::text IS NULL OR $3 = ANY(tags)) ORDER BY "updated_at" ${sort} OFFSET $1 LIMIT $2;`,
+      [(page - 1) * pageSize, pageSize, tag]
+    )
     .then((result) => result.rows)
     .catch((error) => {
       // eslint-disable-next-line no-console
@@ -25,6 +26,7 @@ export default defineEventHandler(async (event) => {
   return {
     articles: articleRecords,
     page,
-    pageSize
+    pageSize,
+    tag
   }
 })

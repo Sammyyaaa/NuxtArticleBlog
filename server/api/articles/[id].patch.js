@@ -26,11 +26,11 @@ export default defineEventHandler(async (event) => {
   let cover = ''
   let img = null
   let imgFilename = ''
+  let tags = []
 
   for (const part of parts) {
     switch (part.name) {
       case 'title':
-        // 將 Buffer 轉換成字串（假設使用 utf8 編碼）
         title = part.data.toString('utf8')
         break
       case 'content':
@@ -40,19 +40,24 @@ export default defineEventHandler(async (event) => {
         cover = part.data.toString('utf8')
         break
       case 'img':
-        // 對於圖片直接保留 Buffer
         img = part.data
         imgFilename = part.filename || ''
+        break
+      case 'tags':
+        tags = part.data.toString('utf8').split(',').map(t => t.trim()).filter(Boolean)
         break
     }
   }
 
+  // 明確格式化為 PostgreSQL 陣列字面值，避免 driver 轉換問題
+  const tagsParam = tags.length > 0 ? `{${tags.join(',')}}` : '{}'
+
   const changeImgSQL =
-    'UPDATE "article" SET "title" = $1, "content" = $2, "cover" = $3, "img" = $4, "img_filename" = $5, "updated_at" = NOW() WHERE "id" = $6 RETURNING *'
-  const changeImgList = [title, content, cover, img, imgFilename, articleId]
+    'UPDATE "article" SET "title" = $1, "content" = $2, "cover" = $3, "img" = $4, "img_filename" = $5, "tags" = $6::text[], "updated_at" = NOW() WHERE "id" = $7 RETURNING *'
+  const changeImgList = [title, content, cover, img, imgFilename, tagsParam, articleId]
   const noChangeImgSQL =
-    'UPDATE "article" SET "title" = $1, "content" = $2, "cover" = $3, "updated_at" = NOW() WHERE "id" = $4 RETURNING *'
-  const noChangeImgList = [title, content, cover, articleId]
+    'UPDATE "article" SET "title" = $1, "content" = $2, "cover" = $3, "tags" = $4::text[], "updated_at" = NOW() WHERE "id" = $5 RETURNING *'
+  const noChangeImgList = [title, content, cover, tagsParam, articleId]
   const articleRecord = await pool
     .query(
       imgFilename ? changeImgSQL : noChangeImgSQL,

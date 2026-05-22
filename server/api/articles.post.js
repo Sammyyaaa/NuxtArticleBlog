@@ -24,11 +24,11 @@ export default defineEventHandler(async (event) => {
   let content = ''
   let cover = ''
   let img = null
+  let tags = []
 
   for (const part of parts) {
     switch (part.name) {
       case 'title':
-        // 將 Buffer 轉換成字串（假設使用 utf8 編碼）
         title = part.data.toString('utf8')
         break
       case 'content':
@@ -38,16 +38,21 @@ export default defineEventHandler(async (event) => {
         cover = part.data.toString('utf8')
         break
       case 'img':
-        // 對於圖片直接保留 Buffer
         img = part.data
+        break
+      case 'tags':
+        tags = part.data.toString('utf8').split(',').map(t => t.trim()).filter(Boolean)
         break
     }
   }
 
+  // 明確格式化為 PostgreSQL 陣列字面值，避免 driver 轉換問題
+  const tagsParam = tags.length > 0 ? `{${tags.join(',')}}` : '{}'
+
   const articleRecord = await pool
     .query(
-      `INSERT INTO "article" ("title", "content", "cover", "img") VALUES ($1, $2, $3, $4) RETURNING *;`,
-      [title, content, cover, img]
+      `INSERT INTO "article" ("title", "content", "cover", "img", "tags") VALUES ($1, $2, $3, $4, $5::text[]) RETURNING *;`,
+      [title, content, cover, img, tagsParam]
     )
     .then((result) => {
       if (result.rowCount === 1) {

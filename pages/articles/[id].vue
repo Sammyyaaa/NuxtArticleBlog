@@ -125,6 +125,18 @@
             </div>
           </div>
 
+          <!-- 標籤 -->
+          <div v-if="article.tags?.length" class="mt-4 flex flex-wrap gap-2">
+            <span
+              v-for="tag in article.tags"
+              :key="tag"
+              class="font-mono text-xs px-2.5 py-0.5 rounded"
+              :class="{ 'bg-stone-800 text-stone-400': isDark, 'bg-stone-100 text-stone-500': !isDark }"
+            >
+              {{ tag }}
+            </span>
+          </div>
+
           <!-- 大標題 -->
           <h1
             class="mt-6 break-words font-serif text-4xl md:text-5xl font-normal leading-tight tracking-tight"
@@ -211,9 +223,10 @@ const endDrag = () => {
 const isDark = useDark()
 const queryClient = useQueryClient()
 
-// 來自 pages/articles/[id].vue
-// 原本: useState('userInfo') 取得 LayoutHeader 設定的全域狀態
-// 改為: useQuery 使用相同的 queryKey: ['whoami']，直接共用 LayoutHeader 已快取的資料，不會重複打 API
+// ─── useQuery: 登入使用者 ────────────────────────────────────────────────────
+// queryKey: ['whoami']（與 LayoutHeader 相同）
+// 相同的 queryKey 會共用快取：若 Header 已請求過，此處直接讀快取，不重打 API。
+// 用於判斷是否顯示「編輯/刪除」按鈕（只有 id === 1 的使用者才能看到）。
 const { data: userInfo } = useQuery({
   queryKey: ['whoami'],
   queryFn: () => $fetch('/api/whoami')
@@ -227,9 +240,12 @@ const article = reactive({
   img_filename: ''
 })
 
-// 來自 pages/articles/[id].vue
-// 原本: await useFetch(`/api/articles/${id}`) + onMounted 同步到 article reactive
-// 改為: useQuery 非同步取資料，用 watch(data, ...) 取代 onMounted，確保快取回來的資料也能正確觸發
+// ─── useQuery: 單篇文章 ──────────────────────────────────────────────────────
+// queryKey: ['article', id]（與 edit.vue 相同）
+// 若使用者先瀏覽過文章再點「編輯」，edit.vue 可直接讀此快取，無需重新 fetch。
+// 用 watch(data, { immediate: true }) 取代 onMounted：
+//   - immediate: true 讓快取已存在時也能立即觸發同步
+//   - 一般 onMounted 在 SSR hydration 階段不一定能拿到非同步資料
 const { data, error } = useQuery({
   queryKey: ['article', route.params.id],
   queryFn: () => $fetch(`/api/articles/${route.params.id}`)
@@ -258,13 +274,16 @@ function onImageError(event) {
   event.target.src = '/article-img.png'
 }
 
-// 來自 pages/articles/[id].vue
-// 原本: $fetch(DELETE).then(() => navigateTo('/'))
-// 改為: useMutation，成功後 invalidateQueries(['articles']) 讓首頁列表快取失效並自動重新 fetch
+// ─── useMutation: 刪除文章 ───────────────────────────────────────────────────
+// 刪除成功後使用 removeQueries 完全清除快取（非 invalidate）：
+//   - removeQueries(['articles'])：清除首頁文章列表快取，回首頁時重新 fetch 最新資料
+//   - removeQueries(['tags'])：清除標籤快取，若此文章是某標籤最後一篇，回首頁時標籤會消失
+// 清除後立即 navigateTo('/')，首頁掛載時自動 fetch 最新資料。
 const { mutate: deleteArticle } = useMutation({
   mutationFn: () => $fetch(`/api/articles/${route.params.id}`, { method: 'DELETE' }),
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['articles'] })
+    queryClient.removeQueries({ queryKey: ['articles'] })
+    queryClient.removeQueries({ queryKey: ['tags'] })
     navigateTo('/')
   },
   onError: (err) => alert(err)

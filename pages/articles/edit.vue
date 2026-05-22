@@ -46,6 +46,75 @@
 
               <div>
                 <label
+                  class="block text-xs font-mono uppercase tracking-widest"
+                  :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
+                >
+                  文章標籤
+                </label>
+                <div class="mt-2 flex flex-wrap items-center gap-2 min-h-[34px]">
+                  <!-- input + + 按鈕 -->
+                  <div class="flex items-center gap-1">
+                    <input
+                      v-model="tagInput"
+                      type="text"
+                      placeholder="新增標籤"
+                      class="w-28 rounded border px-2 py-1 text-xs placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      :class="{
+                        'bg-stone-800 border-stone-600 text-stone-100': isDark,
+                        'bg-white border-stone-300': !isDark
+                      }"
+                      @keydown="onTagKeydown"
+                    />
+                    <button
+                      type="button"
+                      class="rounded px-2 py-1 text-xs font-mono transition-colors"
+                      :class="{
+                        'bg-stone-700 text-stone-300 hover:bg-amber-600 hover:text-white': isDark,
+                        'bg-stone-100 text-stone-600 hover:bg-amber-500 hover:text-white': !isDark
+                      }"
+                      @click="addTag"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <!-- 本次已選的標籤 chips -->
+                  <span
+                    v-for="tag in articleData.tags"
+                    :key="tag"
+                    class="inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono text-xs"
+                    :class="{ 'bg-stone-700 text-stone-300': isDark, 'bg-stone-100 text-stone-600': !isDark }"
+                  >
+                    {{ tag }}
+                    <button type="button" class="hover:text-amber-500 transition-colors" @click="removeTag(tag)">×</button>
+                  </span>
+
+                  <!-- 分隔線（有既有標籤才顯示） -->
+                  <span
+                    v-if="existingTags?.filter(t => !articleData.tags.includes(t)).length"
+                    class="self-stretch border-l mx-1"
+                    :class="{ 'border-stone-600': isDark, 'border-stone-300': !isDark }"
+                  />
+
+                  <!-- 資料庫既有標籤（未被選的） -->
+                  <button
+                    v-for="tag in existingTags?.filter(t => !articleData.tags.includes(t))"
+                    :key="'ex-' + tag"
+                    type="button"
+                    class="rounded px-2 py-0.5 font-mono text-xs transition-colors"
+                    :class="{
+                      'bg-stone-800 text-stone-400 hover:bg-amber-600 hover:text-white': isDark,
+                      'bg-stone-100 text-stone-500 hover:bg-amber-500 hover:text-white': !isDark
+                    }"
+                    @click="addExistingTag(tag)"
+                  >
+                    {{ tag }}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label
                   for="cover"
                   class="block text-xs font-mono uppercase tracking-widest"
                   :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
@@ -161,18 +230,56 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 const route = useRoute()
 const isDark = useDark()
 const uploadImgFileName = ref('')
+const tagInput = ref('')
+
+// ─── useQuery: 既有標籤 ──────────────────────────────────────────────────────
+// queryKey: ['tags']（與 create.vue、index.vue 共用快取）
+// 取得資料庫中已存在的標籤，顯示在標籤輸入框右側供快速點選。
+const { data: existingTags } = useQuery({
+  queryKey: ['tags'],
+  queryFn: () => $fetch('/api/tags')
+})
+
+const addTag = () => {
+  const tag = tagInput.value.trim()
+  if (tag && !articleData.tags.includes(tag)) {
+    articleData.tags = [...articleData.tags, tag]
+  }
+  tagInput.value = ''
+}
+
+const addExistingTag = (tag) => {
+  if (!articleData.tags.includes(tag)) {
+    articleData.tags = [...articleData.tags, tag]
+  }
+}
+
+const onTagKeydown = (e) => {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault()
+    addTag()
+  }
+}
+
+const removeTag = (tag) => {
+  articleData.tags = articleData.tags.filter((t) => t !== tag)
+}
+
 const articleData = reactive({
   title: '',
   content: '',
   cover: '',
   img: null,
-  img_filename: ''
+  img_filename: '',
+  tags: []
 })
 const queryClient = useQueryClient()
 
-// 來自 pages/articles/edit.vue
-// 原本: await useFetch(`/api/articles/${id}`) + onMounted 同步到 articleData
-// 改為: useQuery 共用 ['article', id] 快取（與 [id].vue 相同的 queryKey），若已有快取則不重複請求
+// ─── useQuery: 文章資料（供編輯表單填入） ────────────────────────────────────
+// queryKey: ['article', id]（與 [id].vue 相同）
+// 若使用者先瀏覽文章頁再點「編輯」，此快取已存在，直接讀取，不重打 API。
+// watch({ immediate: true })：快取有值時立即同步到 articleData，
+// 同時確保 tags 永遠是陣列（舊文章在 DB migration 前建立，tags 欄位可能為 null）。
 const { data } = useQuery({
   queryKey: ['article', route.query.id],
   queryFn: () => $fetch(`/api/articles/${route.query.id}`)
@@ -183,23 +290,41 @@ watch(
   (newData) => {
     if (!newData) return
     Object.assign(articleData, newData)
+    // tags 防呆：DB migration 前建立的文章，tags 欄位可能回傳 null
+    if (!Array.isArray(articleData.tags)) articleData.tags = []
   },
   { immediate: true }
 )
 
-// 來自 pages/articles/edit.vue
-// 原本: await $fetch(PATCH).then(response => navigateTo(...))
-// 改為: useMutation，成功後同時 invalidate 文章列表（['articles']）和該篇文章快取（['article', id]），
-//       讓首頁列表和文章頁都能拿到最新資料
+// ─── useMutation: 編輯文章 ───────────────────────────────────────────────────
+// 編輯成功後的快取策略（同 create.vue 邏輯，額外多清除單篇文章快取）：
+//
+// 1. removeQueries(['articles'])：清除首頁文章列表快取
+// 2. removeQueries(['article', id])：清除此篇文章快取，避免文章頁顯示舊內容
+// 3. removeQueries(['tags'])：清除標籤快取（標籤有異動時同步更新）
+//
+// 4. prefetchQuery（非阻塞，背景執行）
+//    在導頁到文章詳情頁的同時，背景預先 fetch 首頁的文章列表與標籤。
+//    用戶在文章頁停留的時間 = 背景 fetch 完成的時間，
+//    回首頁時資料已就緒，無載入延遲。
 const { mutate: editArticle } = useMutation({
   mutationFn: (formData) =>
     $fetch(`/api/articles/${route.query.id}`, { method: 'PATCH', body: formData }),
   onSuccess: (response) => {
-    // 送出成功後，移除先前動態建立的 file input
     const input = document.getElementById('uploadEditInput')
     if (input) input.remove()
-    queryClient.invalidateQueries({ queryKey: ['articles'] })
-    queryClient.invalidateQueries({ queryKey: ['article', route.query.id] })
+    queryClient.removeQueries({ queryKey: ['articles'] })
+    queryClient.removeQueries({ queryKey: ['article', route.query.id] })
+    queryClient.removeQueries({ queryKey: ['tags'] })
+    // 背景預熱首頁資料：用戶在文章頁停留期間完成 fetch，回首頁即時顯示
+    queryClient.prefetchQuery({
+      queryKey: ['articles', { page: 1, sort: 'DESC', search: '', isSearching: false, tag: null }],
+      queryFn: () => $fetch('/api/articles', { query: { page: 1, pageSize: 10, sort: 'DESC' } })
+    })
+    queryClient.prefetchQuery({
+      queryKey: ['tags'],
+      queryFn: () => $fetch('/api/tags')
+    })
     navigateTo({ name: 'articles-id', params: { id: response.id } })
   },
   onError: (error) => alert(error.value)
@@ -215,6 +340,7 @@ const handleSubmit = () => {
   if (articleData.img) {
     formData.append('img', articleData.img)
   }
+  formData.append('tags', articleData.tags.join(','))
   editArticle(formData)
 }
 
