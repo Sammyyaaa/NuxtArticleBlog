@@ -1,9 +1,9 @@
 <template>
   <!-- 布局模板 -->
-  <div class="relative min-h-screen">
+  <div class="relative min-h-screen flex flex-col">
     <LayoutHeader />
     <!-- 內容包一個 relative 容器（或設定 z-index）確保內容在上層 -->
-    <div class="relative z-10">
+    <div class="relative z-10 flex-1">
       <slot />
     </div>
     <!-- 粒子背景：絕對定位覆蓋整個容器，且 z-index 為 -10 -->
