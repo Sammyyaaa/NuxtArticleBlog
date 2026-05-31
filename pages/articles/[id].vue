@@ -3,28 +3,96 @@
 
     <!-- 載入中 -->
     <div v-if="!article.title" class="flex h-[60vh] items-center justify-center">
-      <Icon class="h-10 w-10 text-stone-400" name="eos-icons:bubble-loading" />
+      <svg class="h-8 w-8 text-luxury-gold/50 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+      </svg>
     </div>
 
     <template v-else>
       <!-- 錯誤 -->
       <div v-if="error" class="my-8 px-6 text-center">
-        <span class="text-stone-500">發生了一點錯誤，請稍後再嘗試</span>
+        <span :class="{ 'text-luxury-warm-gray': isDark, 'text-luxury-light-muted': !isDark }">
+          發生了一點錯誤，請稍後再嘗試
+        </span>
         <p class="my-2 text-rose-500">{{ error }}</p>
       </div>
 
       <article v-else-if="article.title" class="w-full">
 
-        <!-- ① 封面圖 -->
+        <!-- ① 文章標頭：date → tags → 大標題 → 裝飾線 -->
+        <div class="mx-auto w-full max-w-3xl px-6 pt-12 pb-8">
+          <div class="flex items-center justify-between">
+            <time
+              class="font-mono text-xs uppercase tracking-[0.15em]"
+              :class="{ 'text-luxury-warm-gray': isDark, 'text-luxury-light-muted': !isDark }"
+            >
+              {{ new Date(article.updated_at).toLocaleString() }}
+            </time>
+            <!-- 編輯 / 刪除（管理員） -->
+            <div v-if="userInfo?.id === 1" class="flex gap-4">
+              <NuxtLink
+                class="flex items-center font-mono text-xs uppercase tracking-wider transition-colors"
+                :class="{
+                  'text-luxury-warm-gray hover:text-luxury-gold': isDark,
+                  'text-luxury-light-muted hover:text-luxury-gold-dark': !isDark
+                }"
+                :to="{ name: 'articles-edit', query: { id: route.params.id } }"
+              >
+                <Icon class="mr-1 h-3.5 w-3.5" name="ri:edit-line" />
+                編輯
+              </NuxtLink>
+              <button
+                class="flex items-center font-mono text-xs uppercase tracking-wider transition-colors"
+                :class="{
+                  'text-luxury-warm-gray hover:text-rose-400': isDark,
+                  'text-luxury-light-muted hover:text-rose-500': !isDark
+                }"
+                @click="handleDeleteArticle"
+              >
+                <Icon class="mr-1 h-3.5 w-3.5" name="ri:delete-bin-line" />
+                刪除
+              </button>
+            </div>
+          </div>
+
+          <!-- 標籤 -->
+          <div v-if="article.tags?.length" class="mt-5 flex flex-wrap gap-2">
+            <span
+              v-for="tag in article.tags"
+              :key="tag"
+              class="font-mono text-xs px-2.5 py-0.5 border"
+              :class="{
+                'border-luxury-warm-border text-luxury-warm-gray': isDark,
+                'border-luxury-light-border text-luxury-light-muted': !isDark
+              }"
+            >
+              {{ tag }}
+            </span>
+          </div>
+
+          <!-- 大標題 -->
+          <h1
+            class="mt-6 break-words font-serif text-4xl md:text-5xl lg:text-6xl font-normal leading-tight"
+            :class="{ 'text-luxury-cream': isDark, 'text-luxury-light-text': !isDark }"
+          >
+            {{ article.title }}
+          </h1>
+
+          <!-- 裝飾分隔線 -->
+          <div class="mt-10 flex items-center gap-4">
+            <div class="h-px flex-1" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
+            <span class="text-luxury-gold text-base">✦</span>
+            <div class="h-px flex-1" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
+          </div>
+        </div>
+
+        <!-- ② 封面圖區域 -->
 
         <!-- 雙圖輪播：左右按鈕 + 拖曳 + 無限循環 -->
-        <div v-if="article.cover && imageUrl" class="mx-auto w-full max-w-2xl px-6">
-          <!--
-            事件綁在容器而非 track，確保 track 平移後仍能捕捉拖曳
-            容器設定明確高度，讓 absolute 按鈕定位正確
-          -->
+        <div v-if="article.cover && imageUrl" class="mx-auto w-full max-w-4xl px-6 mb-10">
           <div
-            class="relative w-full h-[280px] md:h-[380px] overflow-hidden rounded-xl select-none"
+            class="relative w-full h-[300px] md:h-[460px] overflow-hidden rounded select-none"
             :class="isDragging ? 'cursor-grabbing' : 'cursor-grab'"
             @mousedown="startDrag"
             @mousemove="moveDrag"
@@ -34,7 +102,7 @@
             @touchmove.prevent="moveDrag"
             @touchend="endDrag"
           >
-            <!-- Track：純視覺，不綁事件 -->
+            <!-- Track -->
             <div
               class="flex h-full w-full"
               :style="{
@@ -45,13 +113,13 @@
               <img
                 :src="article.cover"
                 alt="封面圖"
-                class="w-full h-full flex-shrink-0 object-contain pointer-events-none"
+                class="w-full h-full flex-shrink-0 object-cover pointer-events-none"
                 @error="onImageError"
               />
               <img
                 :src="imageUrl"
                 alt="上傳圖"
-                class="w-full h-full flex-shrink-0 object-contain pointer-events-none"
+                class="w-full h-full flex-shrink-0 object-cover pointer-events-none"
                 @error="onImageError"
               />
             </div>
@@ -59,8 +127,7 @@
             <!-- 左箭頭 -->
             <button
               v-if="frontIndex > 0"
-              class="absolute left-4 top-1/2 -translate-y-1/2 transition-colors z-10"
-              :class="isDark ? 'text-stone-400 hover:text-amber-400' : 'text-stone-500 hover:text-amber-600'"
+              class="absolute left-4 top-1/2 -translate-y-1/2 transition-colors z-10 text-luxury-gold/70 hover:text-luxury-gold"
               @click.stop="frontIndex = 0"
             >
               <Icon name="ri:arrow-left-s-line" class="h-8 w-8" />
@@ -69,19 +136,21 @@
             <!-- 右箭頭 -->
             <button
               v-if="frontIndex < 1"
-              class="absolute right-4 top-1/2 -translate-y-1/2 transition-colors z-10"
-              :class="isDark ? 'text-stone-400 hover:text-amber-400' : 'text-stone-500 hover:text-amber-600'"
+              class="absolute right-4 top-1/2 -translate-y-1/2 transition-colors z-10 text-luxury-gold/70 hover:text-luxury-gold"
               @click.stop="frontIndex = 1"
             >
               <Icon name="ri:arrow-right-s-line" class="h-8 w-8" />
             </button>
 
             <!-- 指示點 -->
-            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
               <button
-                v-for="i in 2" :key="i"
-                class="h-1.5 rounded-full transition-all duration-300"
-                :class="[frontIndex === i - 1 ? 'w-5 bg-amber-500' : 'w-1.5', isDark ? 'bg-stone-500' : 'bg-stone-400']"
+                v-for="i in 2"
+                :key="i"
+                class="h-1 rounded-full transition-all duration-300"
+                :class="[
+                  frontIndex === i - 1 ? 'w-5 bg-luxury-gold' : 'w-1.5 bg-luxury-gold/30'
+                ]"
                 @click.stop="frontIndex = i - 1"
               />
             </div>
@@ -89,89 +158,39 @@
         </div>
 
         <!-- 單張圖 -->
-        <div v-else-if="article.cover || imageUrl" class="mx-auto w-full max-w-2xl px-6">
-          <div class="w-full h-[280px] md:h-[380px] rounded-xl overflow-hidden">
+        <div v-else-if="article.cover || imageUrl" class="mx-auto w-full max-w-4xl px-6 mb-10">
+          <div class="w-full h-[300px] md:h-[460px] rounded overflow-hidden">
             <img
               :src="article.cover || imageUrl"
               alt="封面圖"
-              class="w-full h-full object-contain"
+              class="w-full h-full object-cover"
               @error="onImageError"
             />
           </div>
         </div>
 
-        <!-- ② 文章標頭：date → title → 分隔線 -->
-        <div class="mx-auto w-full max-w-2xl px-6 mt-12">
-          <div class="flex items-center justify-between">
-            <time class="font-mono text-xs uppercase tracking-widest text-stone-400">
-              {{ new Date(article.updated_at).toLocaleString() }}
-            </time>
-            <!-- 編輯 / 刪除（管理員） -->
-            <div v-if="userInfo?.id === 1" class="flex gap-4">
-              <NuxtLink
-                class="flex items-center font-mono text-xs uppercase tracking-wider text-stone-400 transition-colors hover:text-amber-500"
-                :to="{ name: 'articles-edit', query: { id: route.params.id } }"
-              >
-                <Icon class="mr-1 h-3.5 w-3.5" name="ri:edit-line" />
-                編輯
-              </NuxtLink>
-              <button
-                class="flex items-center font-mono text-xs uppercase tracking-wider text-stone-400 transition-colors hover:text-rose-500"
-                @click="handleDeleteArticle"
-              >
-                <Icon class="mr-1 h-3.5 w-3.5" name="ri:delete-bin-line" />
-                刪除
-              </button>
-            </div>
-          </div>
-
-          <!-- 標籤 -->
-          <div v-if="article.tags?.length" class="mt-4 flex flex-wrap gap-2">
-            <span
-              v-for="tag in article.tags"
-              :key="tag"
-              class="font-mono text-xs px-2.5 py-0.5 rounded"
-              :class="{ 'bg-stone-600 text-stone-300': isDark, 'bg-stone-200 text-stone-600': !isDark }"
-            >
-              {{ tag }}
-            </span>
-          </div>
-
-          <!-- 大標題 -->
-          <h1
-            class="mt-6 break-words font-serif text-4xl md:text-5xl font-normal leading-tight tracking-tight"
-            :class="{ 'text-stone-100': isDark, 'text-stone-800': !isDark }"
-          >
-            {{ article.title }}
-          </h1>
-
-          <!-- 裝飾分隔線 -->
-          <div class="mt-10 flex items-center gap-4">
-            <div class="h-px flex-1" :class="{ 'bg-stone-700': isDark, 'bg-stone-200': !isDark }" />
-            <span class="text-amber-500 text-lg">✦</span>
-            <div class="h-px flex-1" :class="{ 'bg-stone-700': isDark, 'bg-stone-200': !isDark }" />
-          </div>
-        </div>
-
         <!-- ③ 文章內文 -->
-        <div class="mx-auto w-full max-w-2xl px-6 mt-10 mb-16">
+        <div class="mx-auto w-full max-w-3xl px-6 mb-16">
           <div
-            class="prose prose-stone max-w-none text-[17px] leading-9"
-            :class="isDark ? 'prose-invert' : ''"
+            class="prose prose-lg max-w-none leading-9"
+            :class="isDark ? ['prose-invert', 'text-luxury-cream'] : 'prose-stone'"
             v-html="renderedContent"
           />
 
           <!-- 底部分隔線 + 回首頁 -->
           <div class="mt-14 flex items-center gap-4">
-            <div class="h-px flex-1" :class="{ 'bg-stone-700': isDark, 'bg-stone-200': !isDark }" />
-            <span class="text-amber-500 text-lg">✦</span>
-            <div class="h-px flex-1" :class="{ 'bg-stone-700': isDark, 'bg-stone-200': !isDark }" />
+            <div class="h-px flex-1" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
+            <span class="text-luxury-gold text-base">✦</span>
+            <div class="h-px flex-1" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
           </div>
           <div class="mt-8 flex justify-center">
             <NuxtLink
               to="/"
-              class="font-mono text-xs uppercase tracking-widest transition-colors"
-              :class="{ 'text-stone-500 hover:text-amber-400': isDark, 'text-stone-400 hover:text-amber-600': !isDark }"
+              class="font-mono text-xs uppercase tracking-[0.15em] transition-colors"
+              :class="{
+                'text-luxury-warm-gray hover:text-luxury-gold': isDark,
+                'text-luxury-light-muted hover:text-luxury-gold-dark': !isDark
+              }"
             >
               ← 返回文章列表
             </NuxtLink>
@@ -226,7 +245,6 @@ const queryClient = useQueryClient()
 // ─── useQuery: 登入使用者 ────────────────────────────────────────────────────
 // queryKey: ['whoami']（與 LayoutHeader 相同）
 // 相同的 queryKey 會共用快取：若 Header 已請求過，此處直接讀快取，不重打 API。
-// 用於判斷是否顯示「編輯/刪除」按鈕（只有 id === 1 的使用者才能看到）。
 const { data: userInfo } = useQuery({
   queryKey: ['whoami'],
   queryFn: () => $fetch('/api/whoami')
@@ -241,11 +259,6 @@ const article = reactive({
 })
 
 // ─── useQuery: 單篇文章 ──────────────────────────────────────────────────────
-// queryKey: ['article', id]（與 edit.vue 相同）
-// 若使用者先瀏覽過文章再點「編輯」，edit.vue 可直接讀此快取，無需重新 fetch。
-// 用 watch(data, { immediate: true }) 取代 onMounted：
-//   - immediate: true 讓快取已存在時也能立即觸發同步
-//   - 一般 onMounted 在 SSR hydration 階段不一定能拿到非同步資料
 const { data, error } = useQuery({
   queryKey: ['article', route.params.id],
   queryFn: () => $fetch(`/api/articles/${route.params.id}`)
@@ -275,10 +288,6 @@ function onImageError(event) {
 }
 
 // ─── useMutation: 刪除文章 ───────────────────────────────────────────────────
-// 刪除成功後使用 removeQueries 完全清除快取（非 invalidate）：
-//   - removeQueries(['articles'])：清除首頁文章列表快取，回首頁時重新 fetch 最新資料
-//   - removeQueries(['tags'])：清除標籤快取，若此文章是某標籤最後一篇，回首頁時標籤會消失
-// 清除後立即 navigateTo('/')，首頁掛載時自動 fetch 最新資料。
 const { mutate: deleteArticle } = useMutation({
   mutationFn: () => $fetch(`/api/articles/${route.params.id}`, { method: 'DELETE' }),
   onSuccess: () => {
@@ -296,10 +305,6 @@ const handleDeleteArticle = () => {
 }
 
 useHead({
-  // 使用響應式資料
-  // title: article.title
-
-  // 使用函式顯示組合字串模板
   title: () => `Article Blog No.${route.params.id} | ${article.title}`
 })
 
@@ -308,8 +313,7 @@ const description = article.content.replace(/\n/g, '  ').slice(0, 300)
 
 // 建立該頁面的 SEO 相關 meta 標籤
 useSeoMeta({
-  // description: article.content,
-  description, // 顯示前 300 字的文章內容
+  description,
   ogTitle: article.title,
   ogDescription: description,
   ogImage: article.cover,

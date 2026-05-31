@@ -1,15 +1,36 @@
 <template>
   <footer
-    class="py-6 px-6 lg:px-60 border-t"
+    class="py-8 px-6 lg:px-20"
     :class="{
-      'bg-stone-900 border-stone-700': isDark,
-      'bg-stone-100 border-stone-200': !isDark
+      'bg-luxury-dark/88 backdrop-blur-sm': isDark,
+      'bg-luxury-light-bg/92 backdrop-blur-sm': !isDark
     }"
   >
-    <div class="container mx-auto px-4 flex items-center justify-center">
-      <p class="font-mono text-xs text-gray-500 flex flex-col sm:flex-row sm:gap-1">
-        <span>Copyright &copy; 2025 SamYen.</span>
-        <span>All Rights Reserved.</span>
+    <!-- 裝飾分隔線 -->
+    <div class="mb-6 flex items-center gap-4">
+      <div
+        class="flex-1 h-px"
+        :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }"
+      />
+      <span class="text-luxury-gold/70 text-xs">✦</span>
+      <div
+        class="flex-1 h-px"
+        :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }"
+      />
+    </div>
+
+    <div class="text-center space-y-1.5">
+      <p
+        class="font-serif text-sm tracking-[0.25em] uppercase"
+        :class="{ 'text-luxury-warm-gray': isDark, 'text-luxury-light-muted': !isDark }"
+      >
+        Article Blog
+      </p>
+      <p
+        class="font-mono text-xs tracking-widest"
+        :class="{ 'text-luxury-warm-gray/40': isDark, 'text-luxury-light-muted/50': !isDark }"
+      >
+        Copyright &copy; 2025 SamYen &mdash; All Rights Reserved
       </p>
     </div>
   </footer>

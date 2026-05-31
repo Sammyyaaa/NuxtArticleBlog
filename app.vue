@@ -9,18 +9,16 @@
 <script setup>
 // SEO 優化 - 網頁標題對於搜尋引擎的爬蟲是重要資訊
 useHead({
-  // 顯示瀏覽器網頁標題，在這個網頁中都具有這個標籤
   title: 'Article Blog | Home',
   titleTemplate: (title) => (title ? `${title}` : 'Article Blog'),
-
-  // 在 titleTemplate 所傳入的物件中添加其他 HTML 選項
   htmlAttrs: {
-    lang: 'zh-TW' // 設定 HTML 標籤的語言屬性，這樣瀏覽器和搜尋引擎會知道此網站的語言是繁體中文 (台灣)
+    lang: 'zh-TW'
   },
-  link: {
-    rel: 'icon', // 設定網站的 Favicon (網站圖示)
-    href: '/Edit-Note.ico' // 指定 Favicon 圖片的路徑，通常放在 `public` 資料夾中
-  }
+  link: [
+    { rel: 'icon', href: '/Edit-Note.ico' },
+    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }
+  ]
 })
 
 // 設定以上的 SEO 相關 meta 標籤
@@ -34,25 +32,33 @@ useSeoMeta({
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Cormorant Garamond', Georgia, Cambria, serif;
 }
 
-/* Chrome, Safari, Edge 等使用 WebKit 引擎的瀏覽器 */
+/* 金色漸層細滾動條 */
 ::-webkit-scrollbar {
-  width: 8px; /* 調整滾動條寬度 */
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #c7c7c7; /* 軌道背景色 */
+  background: #1a1610;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #464646; /* 滾動條顏色 */
-  border-radius: 6px; /* 滾動條圓角 */
+  background: linear-gradient(to bottom, #c9a84c, #9a7228);
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #363636; /* 懸停狀態顏色 */
+  background: #c9a84c;
+}
+
+/* 金色選取效果 */
+::selection {
+  background: rgba(201, 168, 76, 0.25);
+  color: #f2ead8;
 }
 </style>

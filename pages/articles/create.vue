@@ -201,7 +201,11 @@
             </BlackAndWhiteButton>
             <button
               type="submit"
-              class="inline-flex justify-center rounded border border-transparent bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700"
+              class="inline-flex justify-center border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-all duration-200"
+              :class="{
+                'border-luxury-gold text-luxury-gold hover:bg-luxury-gold hover:text-luxury-dark': isDark,
+                'border-luxury-gold-dark text-luxury-gold-dark hover:bg-luxury-gold-dark hover:text-white': !isDark
+              }"
             >
               發布
             </button>

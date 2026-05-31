@@ -27,41 +27,52 @@ const options = computed(() => ({
   },
   background: {
     color: {
-      value: isDark.value ? '#1c1917' : '#fafaf9'
+      value: isDark.value ? '#080705' : '#faf8f4'
     }
   },
   particles: {
     color: {
-      value: isDark.value ? '#78716c' : '#e7e5e4'
+      value: '#c9a84c'
+    },
+    opacity: {
+      value: isDark.value ? 0.45 : 0.55
     },
     links: {
-      color: isDark.value ? '#78716c' : '#e7e5e4',
+      color: '#c9a84c',
       enable: true,
-      distance: 175
+      distance: 160,
+      opacity: isDark.value ? 0.18 : 0.35
     },
     move: {
-      enable: true
+      enable: true,
+      speed: 0.7
     },
     number: {
       value: 40
     },
     size: {
-      value: { min: 1, max: 5 }
+      value: { min: 1, max: 3 }
     }
   },
   interactivity: {
     events: {
       onHover: {
         enable: true,
-        mode: 'bubble'
+        mode: ['grab', 'bubble']
       }
     },
     modes: {
+      grab: {
+        distance: 180,
+        links: {
+          opacity: 0.55
+        }
+      },
       bubble: {
-        distance: 250,
-        size: 18,
-        duration: 2,
-        opacity: 0.1
+        distance: 160,
+        size: 7,
+        duration: 0.4,
+        opacity: 0.9
       }
     }
   },
@@ -75,10 +86,7 @@ const options = computed(() => ({
             distance: 120
           },
           number: {
-            value: 15
-          },
-          size: {
-            value: { min: 1, max: 5 }
+            value: 20
           }
         }
       }

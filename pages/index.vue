@@ -2,64 +2,88 @@
   <div
     class="flex w-full flex-col items-center"
     :class="{
-      ' h-[calc(100vh-65.81px)]': !articlesResponse || articlesResponse.articles.length < 4
+      'h-[calc(100vh-65.81px)]': !articlesResponse || articlesResponse.articles.length < 4
     }"
   >
-    <!-- 頁首：標題 + 搜尋 -->
-    <div class="flex md:items-center mt-10 w-full px-6 lg:px-60 flex-col md:flex-row gap-4">
+    <!-- 搜尋與排序列 -->
+    <div class="flex md:items-center w-full px-6 lg:px-20 flex-col md:flex-row gap-4 mt-8 mb-4">
+      <!-- 排序按鈕 -->
       <button
-        class="flex items-center gap-1 cursor-pointer select-none transition-colors"
+        class="flex items-center gap-1.5 cursor-pointer select-none transition-colors"
         :class="{
-          'text-stone-500 hover:text-amber-400': isDark,
-          'text-stone-400 hover:text-amber-600': !isDark
+          'text-luxury-warm-gray hover:text-luxury-gold': isDark,
+          'text-luxury-light-muted hover:text-luxury-gold-dark': !isDark
         }"
         @click="toggleSort"
       >
-        <span class="font-mono text-xs uppercase tracking-widest">
+        <span class="font-mono text-xs uppercase tracking-[0.15em]">
           {{ sortAsc ? 'Oldest' : 'Latest' }}
         </span>
-        <Icon :name="sortAsc ? 'heroicons:chevron-up' : 'heroicons:chevron-down'" class="w-4 h-4" />
+        <!-- 上箭頭 -->
+        <svg v-if="sortAsc" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15" />
+        </svg>
+        <!-- 下箭頭 -->
+        <svg v-else class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
       </button>
-      <div class="flex flex-col md:flex-row items-start md:items-center gap-2">
+
+      <!-- 搜尋欄 -->
+      <div class="flex flex-col md:flex-row items-start md:items-center gap-2 md:ml-auto">
         <input
           v-model="searchArticle"
           type="text"
-          class="max-w-[300px] w-full md:w-[200px] h-[34px] rounded border px-3 py-1.5 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          class="max-w-[300px] w-full md:w-[200px] h-[34px] bg-transparent border-b px-0 py-1 text-sm focus:outline-none transition-colors"
           :class="{
-            'bg-stone-800 border-stone-600 text-stone-100': isDark,
-            'bg-white border-stone-300': !isDark
+            'border-luxury-warm-gray/60 text-luxury-cream placeholder-luxury-warm-gray/70 focus:border-luxury-gold': isDark,
+            'border-stone-400 text-luxury-light-text placeholder-stone-400 focus:border-luxury-gold-dark': !isDark
           }"
           placeholder="搜尋文章"
+          @keydown.enter="handleSearch"
         />
-        <BlackAndWhiteButton @click="handleSearch"> 搜尋 </BlackAndWhiteButton>
+        <button
+          class="font-mono text-xs uppercase tracking-[0.12em] px-4 py-1.5 border transition-colors"
+          :class="{
+            'border-luxury-warm-gray/55 text-luxury-warm-gray hover:border-luxury-gold hover:text-luxury-gold': isDark,
+            'border-stone-400 text-stone-600 hover:border-luxury-gold-dark hover:text-luxury-gold-dark': !isDark
+          }"
+          @click="handleSearch"
+        >
+          搜尋
+        </button>
       </div>
     </div>
 
-    <!-- 標籤篩選列（搜尋列下方） -->
-    <div class="mt-4 w-full px-6 lg:px-60 flex flex-wrap gap-2">
+    <!-- 標籤篩選列 -->
+    <div class="mb-8 w-full px-6 lg:px-20 flex flex-wrap gap-2">
       <button
-        class="font-mono text-xs px-2.5 py-1 rounded transition-colors"
+        class="font-mono text-xs uppercase tracking-wider px-3 py-1 border transition-all duration-200"
         :class="
           activeTag === null
-            ? 'bg-amber-500 text-white'
+            ? isDark
+              ? 'border-luxury-gold text-luxury-gold bg-luxury-gold/8'
+              : 'border-luxury-gold-dark text-luxury-gold-dark bg-luxury-gold/8'
             : isDark
-              ? 'bg-stone-600 text-stone-300 hover:text-amber-400'
-              : 'bg-stone-200 text-stone-600 hover:text-amber-600'
+              ? 'border-luxury-warm-gray/55 text-luxury-warm-gray hover:border-luxury-gold/80 hover:text-luxury-gold'
+              : 'border-stone-400 text-stone-600 hover:border-luxury-gold-dark hover:text-luxury-gold-dark'
         "
         @click="activeTag = null"
       >
-        全部
+        All
       </button>
       <button
         v-for="tag in allTags || []"
         :key="tag"
-        class="font-mono text-xs px-2.5 py-1 rounded transition-colors"
+        class="font-mono text-xs uppercase tracking-wider px-3 py-1 border transition-all duration-200"
         :class="
           activeTag === tag
-            ? 'bg-amber-500 text-white'
+            ? isDark
+              ? 'border-luxury-gold text-luxury-gold bg-luxury-gold/8'
+              : 'border-luxury-gold-dark text-luxury-gold-dark bg-luxury-gold/8'
             : isDark
-              ? 'bg-stone-600 text-stone-300 hover:text-amber-400'
-              : 'bg-stone-200 text-stone-600 hover:text-amber-600'
+              ? 'border-luxury-warm-gray/55 text-luxury-warm-gray hover:border-luxury-gold/80 hover:text-luxury-gold'
+              : 'border-stone-400 text-stone-600 hover:border-luxury-gold-dark hover:text-luxury-gold-dark'
         "
         @click="activeTag = tag"
       >
@@ -67,104 +91,137 @@
       </button>
     </div>
 
-    <div class="mt-6 mb-10 flex w-full px-6 lg:px-60 flex-col">
-      <div v-if="pending" class="flex h-[65vh] items-center justify-center">
-        <Icon class="h-12 w-12 text-stone-500" name="eos-icons:loading" />
+    <!-- 文章列表 -->
+    <div class="mb-10 flex w-full px-6 lg:px-20 flex-col">
+      <!-- 載入中 -->
+      <div v-if="pending" class="flex h-[50vh] items-center justify-center">
+        <svg class="h-8 w-8 text-luxury-gold/50 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
       </div>
+
       <template v-else>
+        <!-- 錯誤 -->
         <div v-if="error">
-          <span class="text-stone-500">發生錯誤，請稍後再試</span>
+          <span :class="{ 'text-luxury-warm-gray': isDark, 'text-luxury-light-muted': !isDark }">
+            發生錯誤，請稍後再試
+          </span>
           <p class="my-2 text-rose-500">{{ error }}</p>
         </div>
+
+        <!-- 空列表 -->
         <div v-else-if="!articlesResponse || articlesResponse.articles.length === 0">
-          <span :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }">目前尚無文章</span>
+          <span :class="{ 'text-luxury-warm-gray': isDark, 'text-luxury-light-muted': !isDark }">
+            目前尚無文章
+          </span>
         </div>
-        <!-- 分隔線排版 -->
+
+        <!-- 文章列 -->
         <div
           v-else
           class="divide-y"
-          :class="{ 'divide-stone-700': isDark, 'divide-stone-200': !isDark }"
+          :class="{ 'divide-luxury-warm-border': isDark, 'divide-luxury-light-border': !isDark }"
         >
           <article
             v-for="article in articlesResponse.articles"
             :key="article.id"
-            class="py-8 group"
+            class="group relative"
           >
-            <NuxtLink class="block" :to="{ name: 'articles-id', params: { id: article.id } }">
-              <time
-                class="font-mono text-xs uppercase tracking-widest"
-                :class="{ 'text-stone-500': isDark, 'text-stone-400': !isDark }"
-              >
-                {{ date2LocaleString(article.updated_at) }}
-              </time>
-              <div v-if="article.tags?.length" class="mt-3 flex flex-wrap gap-1.5">
-                <span
-                  v-for="tag in article.tags"
-                  :key="tag"
-                  class="font-mono text-xs px-2 py-0.5 rounded"
+            <!-- 金色左邊緣 highlight（absolute 方式，不受 divide-y 影響） -->
+            <div
+              class="absolute left-0 top-0 bottom-0 w-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              :class="{ 'bg-luxury-gold': isDark, 'bg-luxury-gold-dark': !isDark }"
+            />
+
+            <NuxtLink
+              class="flex py-8 pl-0 group-hover:pl-4 transition-all duration-300"
+              :to="{ name: 'articles-id', params: { id: article.id } }"
+            >
+              <!-- 文字區 -->
+              <div class="flex-1 flex flex-col justify-center min-w-0">
+                <time
+                  class="font-mono text-xs uppercase tracking-[0.15em]"
+                  :class="{ 'text-luxury-warm-gray': isDark, 'text-luxury-light-muted': !isDark }"
+                >
+                  {{ date2LocaleString(article.updated_at) }}
+                </time>
+
+                <div v-if="article.tags?.length" class="mt-2.5 flex flex-wrap gap-1.5">
+                  <span
+                    v-for="tag in article.tags"
+                    :key="tag"
+                    class="font-mono text-xs px-2 py-0.5 border transition-colors duration-300"
+                    :class="{
+                      'border-luxury-warm-border text-luxury-warm-gray group-hover:border-luxury-gold/40 group-hover:text-luxury-gold': isDark,
+                      'border-luxury-light-border text-luxury-light-muted group-hover:border-luxury-gold-dark/40 group-hover:text-luxury-gold-dark': !isDark
+                    }"
+                  >
+                    {{ tag }}
+                  </span>
+                </div>
+
+                <h2
+                  class="mt-3 font-serif text-xl md:text-2xl font-normal leading-snug transition-colors duration-300"
                   :class="{
-                    'bg-stone-600 text-stone-300': isDark,
-                    'bg-stone-200 text-stone-600': !isDark
+                    'text-luxury-cream group-hover:text-luxury-gold': isDark,
+                    'text-luxury-light-text group-hover:text-luxury-gold-dark': !isDark
                   }"
                 >
-                  {{ tag }}
+                  {{ article.title }}
+                </h2>
+
+                <p
+                  class="mt-2 text-sm md:text-base leading-relaxed line-clamp-2"
+                  :class="{ 'text-luxury-warm-gray': isDark, 'text-luxury-light-muted': !isDark }"
+                >
+                  {{ stripMarkdown(article.content).substring(0, 120) }}
+                </p>
+
+                <span
+                  class="mt-4 md:inline-flex hidden items-center font-mono text-xs uppercase tracking-wider opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
+                  :class="{
+                    'text-luxury-gold': isDark,
+                    'text-luxury-gold-dark': !isDark
+                  }"
+                >
+                  閱讀文章
+                  <svg class="ml-1 w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+                  </svg>
                 </span>
               </div>
-              <h2
-                class="mt-2 font-serif text-2xl font-normal leading-snug transition-colors"
-                :class="{
-                  'text-stone-100 group-hover:text-amber-400': isDark,
-                  'text-stone-800 group-hover:text-amber-600': !isDark
-                }"
-              >
-                {{ article.title }}
-              </h2>
-              <p
-                class="mt-3 text-sm leading-relaxed line-clamp-2"
-                :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
-              >
-                {{ stripMarkdown(article.content).substring(0, 120) }}
-              </p>
-              <span
-                class="mt-4 inline-flex items-center font-mono text-xs uppercase tracking-wider transition-colors"
-                :class="{
-                  'text-stone-500 group-hover:text-amber-400': isDark,
-                  'text-stone-400 group-hover:text-amber-600': !isDark
-                }"
-              >
-                閱讀文章
-                <Icon name="ri:arrow-right-s-line" class="ml-0.5" />
-              </span>
             </NuxtLink>
           </article>
         </div>
       </template>
 
       <!-- 分頁 -->
-      <nav v-if="articlesResponse" class="mt-4 flex items-center justify-center gap-6 py-3">
+      <nav v-if="articlesResponse" class="mt-8 flex items-center justify-center gap-8 py-3">
         <NuxtLink
           v-if="currentPage > 1"
-          class="font-mono text-xs uppercase tracking-wider transition-colors"
+          class="font-mono text-xs uppercase tracking-[0.15em] transition-colors"
           :class="{
-            'text-stone-500 hover:text-amber-400': isDark,
-            'text-stone-400 hover:text-amber-600': !isDark
+            'text-luxury-warm-gray hover:text-luxury-gold': isDark,
+            'text-luxury-light-muted hover:text-luxury-gold-dark': !isDark
           }"
           :to="{ name: 'index', query: { page: currentPage - 1 } }"
         >
           ← Prev
         </NuxtLink>
-        <span
-          class="font-mono text-xs"
-          :class="{ 'text-stone-500': isDark, 'text-stone-400': !isDark }"
-        >
-          {{ articlesResponse.page }}
-        </span>
+
+        <div class="flex items-center gap-3">
+          <div class="w-6 h-px" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
+          <span class="font-mono text-xs text-luxury-gold">{{ articlesResponse.page }}</span>
+          <div class="w-6 h-px" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
+        </div>
+
         <NuxtLink
           v-if="!isSearching && articlesResponse.articles.length >= articlesResponse.pageSize"
-          class="font-mono text-xs uppercase tracking-wider transition-colors"
+          class="font-mono text-xs uppercase tracking-[0.15em] transition-colors"
           :class="{
-            'text-stone-500 hover:text-amber-400': isDark,
-            'text-stone-400 hover:text-amber-600': !isDark
+            'text-luxury-warm-gray hover:text-luxury-gold': isDark,
+            'text-luxury-light-muted hover:text-luxury-gold-dark': !isDark
           }"
           :to="{ name: 'index', query: { page: currentPage + 1 } }"
         >
@@ -192,25 +249,12 @@ const activeSort = ref('DESC')
 const activeTag = ref(null)
 
 // ─── useQuery: 所有標籤 ──────────────────────────────────────────────────────
-// queryKey: ['tags']
-// 取得資料庫中所有不重複的標籤，顯示在搜尋列下方作為篩選按鈕。
-// 在新增/編輯/刪除文章的 mutation 成功後，此快取會被 removeQueries 清除，
-// 確保標籤列表永遠是最新狀態。
 const { data: allTags } = useQuery({
   queryKey: ['tags'],
   queryFn: () => $fetch('/api/tags')
 })
 
 // ─── useQuery: 文章列表 ──────────────────────────────────────────────────────
-// queryKey: ['articles', { page, search, sort, isSearching, tag }]
-//
-// 核心設計：queryKey 使用 computed，包含所有影響查詢結果的狀態。
-// 當任何一個 ref（分頁/搜尋/排序/標籤篩選）改變時，queryKey 隨之變化，
-// TanStack Query 自動偵測到新的 key 並重新 fetch，無需手動呼叫。
-//
-// queryFn 根據是否為搜尋模式選擇不同的 endpoint：
-//   - 一般瀏覽 → GET /api/articles（支援分頁 + 排序 + 標籤篩選）
-//   - 關鍵字搜尋 → GET /api/article（支援 ILIKE 全文搜尋 + 排序）
 const {
   isPending: pending,
   data: articlesResponse,
@@ -264,9 +308,6 @@ const toggleSort = () => {
   activeSort.value = sortAsc.value ? 'ASC' : 'DESC'
 }
 
-// 來自 pages/index.vue
-// 原本: $fetch 搜尋後直接 articlesResponse.value = data（手動寫入）
-// 改為: 更新 activeSearch / activeSort / isSearching ref，queryKey 變動觸發自動 refetch
 const handleSearch = () => {
   if (searchArticle.value === '') {
     isSearching.value = false

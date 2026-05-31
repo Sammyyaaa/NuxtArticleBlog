@@ -1,10 +1,10 @@
 <template>
   <button
     type="button"
-    class="relative rounded-md border px-4 py-2 text-sm font-medium"
+    class="relative border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-colors duration-200"
     :class="{
-      'bg-gray-800 text-gray-400 border-gray-600 hover:bg-gray-400 hover:text-gray-800': isDark,
-      'bg-white text-gray-500 border-gray-300 hover:bg-gray-500 hover:text-gray-200': !isDark
+      'border-luxury-warm-gray/55 text-luxury-warm-gray hover:border-luxury-gold hover:text-luxury-gold': isDark,
+      'border-stone-400 text-stone-600 hover:border-luxury-gold-dark hover:text-luxury-gold-dark': !isDark
     }"
     :style="{ width: props.width + 'px', height: props.height + 'px' }"
   >

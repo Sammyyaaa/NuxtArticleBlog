@@ -15,8 +15,36 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'system-ui', 'sans-serif'],
-        serif: ['Georgia', 'Cambria', "'Times New Roman'", 'ui-serif', 'serif'],
+        serif: [
+          "'Playfair Display'",
+          'Georgia',
+          'Cambria',
+          "'Times New Roman'",
+          'ui-serif',
+          'serif'
+        ],
+        body: ["'Cormorant Garamond'", 'Georgia', 'Cambria', 'serif'],
         mono: ['ui-monospace', 'Cascadia Code', 'Source Code Pro', 'Menlo', 'Consolas', 'monospace']
+      },
+      colors: {
+        luxury: {
+          gold: '#c9a84c',
+          'gold-light': '#e8d5a3',
+          'gold-dark': '#9a7228',
+          cream: '#f2ead8',
+          'cream-muted': '#d4c9b2',
+          dark: '#080705',
+          'dark-2': '#100e0b',
+          'dark-3': '#1a1610',
+          'dark-card': '#12100d',
+          'warm-gray': '#b8a890',
+          'warm-border': '#2a2318',
+          'light-bg': '#faf8f4',
+          'light-card': '#f5f1ea',
+          'light-border': '#e2d9c8',
+          'light-text': '#1a1410',
+          'light-muted': '#7a6a58'
+        }
       }
     }
   },
