@@ -173,7 +173,7 @@
                 <div class="mt-2">
                   <button
                     type="button"
-                    class="block w-full appearance-none rounded border px-3 py-2 text-sm transition-colors"
+                    class="block w-full appearance-none rounded border px-3 py-2 text-sm text-center transition-colors"
                     :class="{
                       'bg-stone-800 border-stone-600 text-stone-300 hover:bg-stone-700': isDark,
                       'border-stone-300 text-stone-600 hover:bg-stone-100': !isDark
@@ -217,7 +217,7 @@
         </div>
 
         <div class="py-5">
-          <div class="flex justify-center gap-3">
+          <div class="flex justify-end gap-3">
             <BlackAndWhiteButton :height="37.81" :width="61.82">
               <NuxtLink to="/" class="absolute inset-0 flex items-center justify-center">
                 取消
@@ -225,7 +225,7 @@
             </BlackAndWhiteButton>
             <button
               type="submit"
-              class="inline-flex justify-center border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-all duration-200"
+              class="inline-flex items-center justify-center border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-all duration-200"
               :class="{
                 'border-luxury-gold text-luxury-gold hover:bg-luxury-gold hover:text-luxury-dark':
                   isDark,
