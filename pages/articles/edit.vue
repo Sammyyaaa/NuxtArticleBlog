@@ -229,7 +229,7 @@
         </div>
 
         <div class="py-5">
-          <div class="flex justify-end gap-3">
+          <div class="flex justify-center gap-3">
             <BlackAndWhiteButton :height="37.81" :width="61.82">
               <NuxtLink class="absolute inset-0 flex items-center justify-center" to="/">
                 取消
