@@ -44,7 +44,11 @@ export default defineEventHandler(async (event) => {
         imgFilename = part.filename || ''
         break
       case 'tags':
-        tags = part.data.toString('utf8').split(',').map(t => t.trim()).filter(Boolean)
+        tags = part.data
+          .toString('utf8')
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
         break
     }
   }

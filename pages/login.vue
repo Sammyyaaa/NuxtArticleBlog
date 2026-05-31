@@ -5,8 +5,8 @@
   >
     <!-- 粒子背景 -->
     <NuxtParticles
-      :key="isDarkKey"
       id="login-particles"
+      :key="isDarkKey"
       :options="particlesOptions"
       class="absolute inset-0 -z-10"
     />
@@ -20,7 +20,9 @@
       }"
     >
       <!-- 頂部金色線 -->
-      <div class="h-px w-full bg-gradient-to-r from-transparent via-luxury-gold/60 to-transparent" />
+      <div
+        class="h-px w-full bg-gradient-to-r from-transparent via-luxury-gold/60 to-transparent"
+      />
 
       <div class="px-8 py-10">
         <!-- 品牌 -->
@@ -37,9 +39,15 @@
             </span>
           </NuxtLink>
           <div class="mt-4 flex items-center justify-center gap-3">
-            <div class="w-8 h-px" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
+            <div
+              class="w-8 h-px"
+              :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }"
+            />
             <span class="text-luxury-gold/50 text-xs">✦</span>
-            <div class="w-8 h-px" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
+            <div
+              class="w-8 h-px"
+              :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }"
+            />
           </div>
           <p class="mt-3 font-mono text-xs uppercase tracking-[0.2em] text-luxury-warm-gray">
             Sign In
@@ -67,7 +75,8 @@
               class="block w-full bg-transparent border-b py-2 text-sm placeholder-luxury-warm-gray/40 focus:outline-none transition-colors"
               :class="{
                 'border-luxury-warm-border text-luxury-cream focus:border-luxury-gold': isDark,
-                'border-luxury-light-border text-luxury-light-text focus:border-luxury-gold-dark': !isDark
+                'border-luxury-light-border text-luxury-light-text focus:border-luxury-gold-dark':
+                  !isDark
               }"
             />
           </div>
@@ -92,7 +101,8 @@
                 class="block w-full bg-transparent border-b py-2 pr-10 text-sm placeholder-luxury-warm-gray/40 focus:outline-none transition-colors"
                 :class="{
                   'border-luxury-warm-gray/45 text-luxury-cream focus:border-luxury-gold': isDark,
-                  'border-luxury-light-border text-luxury-light-text focus:border-luxury-gold-dark': !isDark
+                  'border-luxury-light-border text-luxury-light-text focus:border-luxury-gold-dark':
+                    !isDark
                 }"
               />
               <button
@@ -115,8 +125,10 @@
             type="submit"
             class="w-full border py-2.5 font-mono text-xs uppercase tracking-[0.2em] transition-all duration-300"
             :class="{
-              'border-luxury-gold text-luxury-gold hover:bg-luxury-gold hover:text-luxury-dark': isDark,
-              'border-luxury-gold-dark text-luxury-gold-dark hover:bg-luxury-gold-dark hover:text-white': !isDark
+              'border-luxury-gold text-luxury-gold hover:bg-luxury-gold hover:text-luxury-dark':
+                isDark,
+              'border-luxury-gold-dark text-luxury-gold-dark hover:bg-luxury-gold-dark hover:text-white':
+                !isDark
             }"
           >
             登入
@@ -125,7 +137,9 @@
       </div>
 
       <!-- 底部金色線 -->
-      <div class="h-px w-full bg-gradient-to-r from-transparent via-luxury-gold/40 to-transparent" />
+      <div
+        class="h-px w-full bg-gradient-to-r from-transparent via-luxury-gold/40 to-transparent"
+      />
     </div>
   </div>
 </template>

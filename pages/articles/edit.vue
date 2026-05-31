@@ -78,27 +78,51 @@
                     </button>
                   </div>
 
+                  <!-- 已選標籤標題 -->
+                  <span
+                    class="text-xs font-mono"
+                    :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
+                    >套用中</span
+                  >
+
                   <!-- 本次已選的標籤 chips -->
                   <span
                     v-for="tag in articleData.tags"
                     :key="tag"
                     class="inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono text-xs"
-                    :class="{ 'bg-stone-600 text-stone-300': isDark, 'bg-stone-200 text-stone-600': !isDark }"
+                    :class="{
+                      'bg-stone-600 text-stone-300': isDark,
+                      'bg-stone-200 text-stone-600': !isDark
+                    }"
                   >
                     {{ tag }}
-                    <button type="button" class="hover:text-amber-500 transition-colors" @click="removeTag(tag)">×</button>
+                    <button
+                      type="button"
+                      class="hover:text-amber-500 transition-colors"
+                      @click="removeTag(tag)"
+                    >
+                      ×
+                    </button>
                   </span>
 
                   <!-- 分隔線（有既有標籤才顯示） -->
                   <span
-                    v-if="existingTags?.filter(t => !articleData.tags.includes(t)).length"
+                    v-if="existingTags?.filter((t) => !articleData.tags.includes(t)).length"
                     class="self-stretch border-l mx-1"
                     :class="{ 'border-stone-600': isDark, 'border-stone-300': !isDark }"
                   />
 
+                  <!-- 可選標籤標題 -->
+                  <span
+                    v-if="existingTags?.filter((t) => !articleData.tags.includes(t)).length"
+                    class="text-xs font-mono"
+                    :class="{ 'text-stone-400': isDark, 'text-stone-500': !isDark }"
+                    >可選擇</span
+                  >
+
                   <!-- 資料庫既有標籤（未被選的） -->
                   <button
-                    v-for="tag in existingTags?.filter(t => !articleData.tags.includes(t))"
+                    v-for="tag in existingTags?.filter((t) => !articleData.tags.includes(t))"
                     :key="'ex-' + tag"
                     type="button"
                     class="rounded px-2 py-0.5 font-mono text-xs transition-colors"
@@ -196,7 +220,7 @@
                     }"
                   />
                   <p class="mt-1.5 font-mono text-xs text-stone-400">
-                    支援 Markdown 語法　# 標題　**粗體**　`程式碼`　- 清單
+                    支援 Markdown 語法 # 標題 **粗體** `程式碼` - 清單
                   </p>
                 </div>
               </div>
@@ -215,8 +239,10 @@
               type="submit"
               class="inline-flex justify-center border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-all duration-200"
               :class="{
-                'border-luxury-gold text-luxury-gold hover:bg-luxury-gold hover:text-luxury-dark': isDark,
-                'border-luxury-gold-dark text-luxury-gold-dark hover:bg-luxury-gold-dark hover:text-white': !isDark
+                'border-luxury-gold text-luxury-gold hover:bg-luxury-gold hover:text-luxury-dark':
+                  isDark,
+                'border-luxury-gold-dark text-luxury-gold-dark hover:bg-luxury-gold-dark hover:text-white':
+                  !isDark
               }"
             >
               儲存

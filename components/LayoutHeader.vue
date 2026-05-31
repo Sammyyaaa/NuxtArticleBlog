@@ -39,116 +39,136 @@
         />
         <!-- 控制列 -->
         <div class="pl-8 flex items-center gap-6">
-        <!-- 亮暗主題切換按鈕 -->
-        <ToggleThemeButton />
+          <!-- 亮暗主題切換按鈕 -->
+          <ToggleThemeButton />
 
-        <!-- 登入狀態：顯示使用者選單（hover 觸發） -->
-        <div
-          v-if="userInfo"
-          class="relative"
-          @mouseenter="showMenu = true"
-          @mouseleave="showMenu = false"
-        >
-          <img
-            class="inline-block h-8 w-8 rounded-full object-cover object-center ring-1 cursor-pointer transition-all duration-300"
-            :class="{
-              'ring-luxury-gold/40 hover:ring-luxury-gold': isDark,
-              'ring-luxury-gold/30 hover:ring-luxury-gold-dark': !isDark
-            }"
-            :src="userInfo.avatar"
-            alt="使用者選單"
-          />
+          <!-- 登入狀態：顯示使用者選單（hover 觸發） -->
+          <div
+            v-if="userInfo"
+            class="relative"
+            @mouseenter="showMenu = true"
+            @mouseleave="showMenu = false"
+          >
+            <img
+              class="inline-block h-8 w-8 rounded-full object-cover object-center ring-1 cursor-pointer transition-all duration-300"
+              :class="{
+                'ring-luxury-gold/40 hover:ring-luxury-gold': isDark,
+                'ring-luxury-gold/30 hover:ring-luxury-gold-dark': !isDark
+              }"
+              :src="userInfo.avatar"
+              alt="使用者選單"
+            />
 
-          <!-- 下拉選單 -->
-          <Transition name="menu">
-            <div
-              v-if="showMenu"
-              class="absolute right-0 top-full pt-2 w-52 z-50"
-            >
-              <div
-                class="rounded overflow-hidden shadow-2xl border"
-                :class="{
-                  'bg-luxury-dark-card/95 backdrop-blur-md border-luxury-warm-border': isDark,
-                  'bg-white/95 backdrop-blur-md border-luxury-light-border': !isDark
-                }"
-              >
-                <!-- 使用者資訊 -->
+            <!-- 下拉選單 -->
+            <Transition name="menu">
+              <div v-if="showMenu" class="absolute right-0 top-full pt-2 w-52 z-50">
                 <div
-                  class="flex items-center px-4 py-3 border-b"
+                  class="rounded overflow-hidden shadow-2xl border"
                   :class="{
-                    'border-luxury-warm-border': isDark,
-                    'border-luxury-light-border': !isDark
+                    'bg-luxury-dark-card/95 backdrop-blur-md border-luxury-warm-border': isDark,
+                    'bg-white/95 backdrop-blur-md border-luxury-light-border': !isDark
                   }"
                 >
-                  <img
-                    :src="userInfo.avatar"
-                    class="inline-block h-7 w-7 rounded-full object-cover object-center"
-                  />
-                  <div class="ml-3 flex-grow overflow-hidden">
-                    <p
-                      class="overflow-hidden text-ellipsis text-sm font-medium"
-                      :class="{ 'text-luxury-cream': isDark, 'text-luxury-light-text': !isDark }"
+                  <!-- 使用者資訊 -->
+                  <div
+                    class="flex items-center px-4 py-3 border-b"
+                    :class="{
+                      'border-luxury-warm-border': isDark,
+                      'border-luxury-light-border': !isDark
+                    }"
+                  >
+                    <img
+                      :src="userInfo.avatar"
+                      class="inline-block h-7 w-7 rounded-full object-cover object-center"
+                    />
+                    <div class="ml-3 flex-grow overflow-hidden">
+                      <p
+                        class="overflow-hidden text-ellipsis text-sm font-medium"
+                        :class="{ 'text-luxury-cream': isDark, 'text-luxury-light-text': !isDark }"
+                      >
+                        {{ userInfo.nickname }}
+                      </p>
+                      <p class="overflow-hidden text-ellipsis text-xs text-luxury-warm-gray mt-0.5">
+                        {{ userInfo.email }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- 撰寫文章 -->
+                  <div class="px-1 py-1">
+                    <NuxtLink
+                      class="flex w-full items-center rounded px-3 py-2 text-xs font-mono tracking-wider uppercase transition-colors"
+                      :class="{
+                        'text-luxury-warm-gray hover:text-luxury-gold hover:bg-luxury-warm-border/40':
+                          isDark,
+                        'text-luxury-light-muted hover:text-luxury-gold-dark hover:bg-luxury-light-card':
+                          !isDark
+                      }"
+                      to="/articles/create"
+                      @click="showMenu = false"
                     >
-                      {{ userInfo.nickname }}
-                    </p>
-                    <p class="overflow-hidden text-ellipsis text-xs text-luxury-warm-gray mt-0.5">
-                      {{ userInfo.email }}
-                    </p>
+                      <svg
+                        class="mr-2 h-3.5 w-3.5 text-luxury-gold"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M12 20h9" />
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                      </svg>
+                      撰寫文章
+                    </NuxtLink>
+                  </div>
+
+                  <!-- 登出 -->
+                  <div class="px-1 py-1">
+                    <button
+                      class="flex w-full items-center rounded px-3 py-2 text-xs font-mono tracking-wider uppercase transition-colors"
+                      :class="{
+                        'text-luxury-warm-gray hover:text-luxury-gold hover:bg-luxury-warm-border/40':
+                          isDark,
+                        'text-luxury-light-muted hover:text-luxury-gold-dark hover:bg-luxury-light-card':
+                          !isDark
+                      }"
+                      @click="handleLogout"
+                    >
+                      <svg
+                        class="mr-2 h-3.5 w-3.5 text-luxury-gold"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                      </svg>
+                      登出
+                    </button>
                   </div>
                 </div>
-
-                <!-- 撰寫文章 -->
-                <div class="px-1 py-1">
-                  <NuxtLink
-                    class="flex w-full items-center rounded px-3 py-2 text-xs font-mono tracking-wider uppercase transition-colors"
-                    :class="{
-                      'text-luxury-warm-gray hover:text-luxury-gold hover:bg-luxury-warm-border/40': isDark,
-                      'text-luxury-light-muted hover:text-luxury-gold-dark hover:bg-luxury-light-card': !isDark
-                    }"
-                    to="/articles/create"
-                    @click="showMenu = false"
-                  >
-                    <svg class="mr-2 h-3.5 w-3.5 text-luxury-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                    </svg>
-                    撰寫文章
-                  </NuxtLink>
-                </div>
-
-                <!-- 登出 -->
-                <div class="px-1 py-1">
-                  <button
-                    class="flex w-full items-center rounded px-3 py-2 text-xs font-mono tracking-wider uppercase transition-colors"
-                    :class="{
-                      'text-luxury-warm-gray hover:text-luxury-gold hover:bg-luxury-warm-border/40': isDark,
-                      'text-luxury-light-muted hover:text-luxury-gold-dark hover:bg-luxury-light-card': !isDark
-                    }"
-                    @click="handleLogout"
-                  >
-                    <svg class="mr-2 h-3.5 w-3.5 text-luxury-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
-                    登出
-                  </button>
-                </div>
               </div>
-            </div>
-          </Transition>
-        </div>
+            </Transition>
+          </div>
 
-        <!-- 未登入：顯示登入連結 -->
-        <NuxtLink
-          v-else
-          class="font-mono text-xs uppercase tracking-[0.15em] transition-colors"
-          :class="{
-            'text-luxury-warm-gray hover:text-luxury-gold': isDark,
-            'text-luxury-light-muted hover:text-luxury-gold-dark': !isDark
-          }"
-          to="/login"
-        >
-          登入
-        </NuxtLink>
-      </div>
+          <!-- 未登入：顯示登入連結 -->
+          <NuxtLink
+            v-else
+            class="font-mono text-xs uppercase tracking-[0.15em] transition-colors"
+            :class="{
+              'text-luxury-warm-gray hover:text-luxury-gold': isDark,
+              'text-luxury-light-muted hover:text-luxury-gold-dark': !isDark
+            }"
+            to="/login"
+          >
+            登入
+          </NuxtLink>
+        </div>
       </div>
     </div>
 
@@ -192,7 +212,9 @@ const handleLogout = () => logout()
 <style scoped>
 .menu-enter-active,
 .menu-leave-active {
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 .menu-enter-from,
 .menu-leave-to {

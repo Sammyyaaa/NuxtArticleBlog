@@ -57,6 +57,9 @@ const add = () => {
 }
 
 const remove = (tag) => {
-  emit('update:modelValue', props.modelValue.filter((t) => t !== tag))
+  emit(
+    'update:modelValue',
+    props.modelValue.filter((t) => t !== tag)
+  )
 }
 </script>

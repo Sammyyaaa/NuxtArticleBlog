@@ -20,11 +20,29 @@
           {{ sortAsc ? 'Oldest' : 'Latest' }}
         </span>
         <!-- 上箭頭 -->
-        <svg v-if="sortAsc" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          v-if="sortAsc"
+          class="w-3.5 h-3.5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <polyline points="18 15 12 9 6 15" />
         </svg>
         <!-- 下箭頭 -->
-        <svg v-else class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          v-else
+          class="w-3.5 h-3.5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
@@ -36,8 +54,10 @@
           type="text"
           class="max-w-[300px] w-full md:w-[200px] h-[34px] bg-transparent border-b px-0 py-1 text-sm focus:outline-none transition-colors"
           :class="{
-            'border-luxury-warm-gray/60 text-luxury-cream placeholder-luxury-warm-gray/70 focus:border-luxury-gold': isDark,
-            'border-stone-400 text-luxury-light-text placeholder-stone-400 focus:border-luxury-gold-dark': !isDark
+            'border-luxury-warm-gray/60 text-luxury-cream placeholder-luxury-warm-gray/70 focus:border-luxury-gold':
+              isDark,
+            'border-stone-400 text-luxury-light-text placeholder-stone-400 focus:border-luxury-gold-dark':
+              !isDark
           }"
           placeholder="搜尋文章"
           @keydown.enter="handleSearch"
@@ -45,8 +65,10 @@
         <button
           class="font-mono text-xs uppercase tracking-[0.12em] px-4 py-1.5 border transition-colors"
           :class="{
-            'border-luxury-warm-gray/55 text-luxury-warm-gray hover:border-luxury-gold hover:text-luxury-gold': isDark,
-            'border-stone-400 text-stone-600 hover:border-luxury-gold-dark hover:text-luxury-gold-dark': !isDark
+            'border-luxury-warm-gray/55 text-luxury-warm-gray hover:border-luxury-gold hover:text-luxury-gold':
+              isDark,
+            'border-stone-400 text-stone-600 hover:border-luxury-gold-dark hover:text-luxury-gold-dark':
+              !isDark
           }"
           @click="handleSearch"
         >
@@ -95,10 +117,26 @@
     <div class="mb-10 flex w-full px-6 lg:px-20 flex-col">
       <!-- 載入中 -->
       <div v-if="pending" class="flex h-[50vh] items-center justify-center">
-        <svg class="h-8 w-8 text-luxury-gold/50 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
+        <svg
+          class="h-8 w-8 text-luxury-gold/50 animate-spin"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          />
+        </svg>
       </div>
 
       <template v-else>
@@ -153,8 +191,10 @@
                     :key="tag"
                     class="font-mono text-xs px-2 py-0.5 border transition-colors duration-300"
                     :class="{
-                      'border-luxury-warm-border text-luxury-warm-gray group-hover:border-luxury-gold/40 group-hover:text-luxury-gold': isDark,
-                      'border-luxury-light-border text-luxury-light-muted group-hover:border-luxury-gold-dark/40 group-hover:text-luxury-gold-dark': !isDark
+                      'border-luxury-warm-border text-luxury-warm-gray group-hover:border-luxury-gold/40 group-hover:text-luxury-gold':
+                        isDark,
+                      'border-luxury-light-border text-luxury-light-muted group-hover:border-luxury-gold-dark/40 group-hover:text-luxury-gold-dark':
+                        !isDark
                     }"
                   >
                     {{ tag }}
@@ -186,8 +226,17 @@
                   }"
                 >
                   閱讀文章
-                  <svg class="ml-1 w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+                  <svg
+                    class="ml-1 w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
                   </svg>
                 </span>
               </div>
@@ -211,9 +260,15 @@
         </NuxtLink>
 
         <div class="flex items-center gap-3">
-          <div class="w-6 h-px" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
+          <div
+            class="w-6 h-px"
+            :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }"
+          />
           <span class="font-mono text-xs text-luxury-gold">{{ articlesResponse.page }}</span>
-          <div class="w-6 h-px" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
+          <div
+            class="w-6 h-px"
+            :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }"
+          />
         </div>
 
         <NuxtLink

@@ -1,11 +1,26 @@
 <template>
   <div class="flex w-full flex-col items-center min-h-[calc(100vh-65.81px)]">
-
     <!-- 載入中 -->
     <div v-if="!article.title" class="flex h-[60vh] items-center justify-center">
-      <svg class="h-8 w-8 text-luxury-gold/50 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+      <svg
+        class="h-8 w-8 text-luxury-gold/50 animate-spin"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="1.5"
+        />
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+        />
       </svg>
     </div>
 
@@ -19,7 +34,6 @@
       </div>
 
       <article v-else-if="article.title" class="w-full">
-
         <!-- ① 文章標頭：date → tags → 大標題 → 裝飾線 -->
         <div class="mx-auto w-full max-w-3xl px-6 pt-12 pb-8">
           <div class="flex items-center justify-between">
@@ -81,9 +95,15 @@
 
           <!-- 裝飾分隔線 -->
           <div class="mt-10 flex items-center gap-4">
-            <div class="h-px flex-1" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
+            <div
+              class="h-px flex-1"
+              :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }"
+            />
             <span class="text-luxury-gold text-base">✦</span>
-            <div class="h-px flex-1" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
+            <div
+              class="h-px flex-1"
+              :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }"
+            />
           </div>
         </div>
 
@@ -148,9 +168,7 @@
                 v-for="i in 2"
                 :key="i"
                 class="h-1 rounded-full transition-all duration-300"
-                :class="[
-                  frontIndex === i - 1 ? 'w-5 bg-luxury-gold' : 'w-1.5 bg-luxury-gold/30'
-                ]"
+                :class="[frontIndex === i - 1 ? 'w-5 bg-luxury-gold' : 'w-1.5 bg-luxury-gold/30']"
                 @click.stop="frontIndex = i - 1"
               />
             </div>
@@ -179,9 +197,15 @@
 
           <!-- 底部分隔線 + 回首頁 -->
           <div class="mt-14 flex items-center gap-4">
-            <div class="h-px flex-1" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
+            <div
+              class="h-px flex-1"
+              :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }"
+            />
             <span class="text-luxury-gold text-base">✦</span>
-            <div class="h-px flex-1" :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }" />
+            <div
+              class="h-px flex-1"
+              :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }"
+            />
           </div>
           <div class="mt-8 flex justify-center">
             <NuxtLink
@@ -196,7 +220,6 @@
             </NuxtLink>
           </div>
         </div>
-
       </article>
     </template>
 

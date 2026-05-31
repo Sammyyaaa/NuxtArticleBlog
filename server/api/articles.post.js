@@ -41,7 +41,11 @@ export default defineEventHandler(async (event) => {
         img = part.data
         break
       case 'tags':
-        tags = part.data.toString('utf8').split(',').map(t => t.trim()).filter(Boolean)
+        tags = part.data
+          .toString('utf8')
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
         break
     }
   }

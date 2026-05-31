@@ -8,8 +8,8 @@
     </div>
     <!-- 粒子背景：絕對定位覆蓋整個容器，且 z-index 為 -10 -->
     <NuxtParticles
-      :key="isDarkKey"
       id="tsparticles"
+      :key="isDarkKey"
       :options="options"
       class="absolute inset-0 -z-10"
     />
