@@ -348,7 +348,7 @@ const {
 })
 
 const date2LocaleString = (date) => {
-  return new Date(date).toLocaleString()
+  return new Date(date).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
 }
 
 const stripMarkdown = (text = '') =>

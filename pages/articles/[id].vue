@@ -41,7 +41,7 @@
               class="font-mono text-xs uppercase tracking-[0.15em]"
               :class="{ 'text-luxury-warm-gray': isDark, 'text-luxury-light-muted': !isDark }"
             >
-              {{ new Date(article.updated_at).toLocaleString() }}
+              {{ new Date(article.updated_at).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }) }}
             </time>
             <!-- 編輯 / 刪除（管理員） -->
             <div v-if="userInfo?.id === 1" class="flex gap-4">
@@ -62,11 +62,19 @@
                   'text-luxury-warm-gray hover:text-rose-400': isDark,
                   'text-luxury-light-muted hover:text-rose-500': !isDark
                 }"
-                @click="handleDeleteArticle"
+                @click="showDeleteDialog = true"
               >
                 <Icon class="mr-1 h-3.5 w-3.5" name="ri:delete-bin-line" />
                 刪除
               </button>
+
+              <ConfirmDialog
+                v-model="showDeleteDialog"
+                title="確定要刪除此篇文章嗎？"
+                message="刪除後將無法復原。"
+                @confirm="deleteArticle"
+                @cancel="showDeleteDialog = false"
+              />
             </div>
           </div>
 
@@ -321,11 +329,7 @@ const { mutate: deleteArticle } = useMutation({
   onError: (err) => alert(err)
 })
 
-const handleDeleteArticle = () => {
-  if (confirm('你確定要刪除文章嗎')) {
-    deleteArticle()
-  }
-}
+const showDeleteDialog = ref(false)
 
 useHead({
   title: () => `Article Blog No.${route.params.id} | ${article.title}`

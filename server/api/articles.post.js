@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
 
   const articleRecord = await pool
     .query(
-      `INSERT INTO "article" ("title", "content", "cover", "img", "tags") VALUES ($1, $2, $3, $4, $5::text[]) RETURNING *;`,
+      `INSERT INTO "article" ("title", "content", "cover", "img", "tags", "updated_at") VALUES ($1, $2, $3, $4, $5::text[], NOW()) RETURNING *;`,
       [title, content, cover, img, tagsParam]
     )
     .then((result) => {
