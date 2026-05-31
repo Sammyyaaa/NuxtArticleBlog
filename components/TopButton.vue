@@ -2,7 +2,8 @@
   <Transition name="top-btn">
     <button
       v-show="showScroll"
-      class="fixed bottom-6 right-6 flex flex-col items-center gap-1 group focus:outline-none"
+      class="fixed right-6 flex flex-col items-center gap-1 group focus:outline-none"
+      :style="{ bottom: bottomOffset + 'px' }"
       @click="scrollToTop"
     >
       <!-- 上箭頭 -->
@@ -38,6 +39,7 @@
 <script setup>
 const isDark = useDark()
 const showScroll = ref(false)
+const bottomOffset = ref(24)
 
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -45,6 +47,17 @@ const scrollToTop = () => {
 
 const handleScroll = () => {
   showScroll.value = window.scrollY > 50
+
+  const footer = document.querySelector('footer')
+  if (footer) {
+    const footerTop = footer.getBoundingClientRect().top
+    const viewportHeight = window.innerHeight
+    if (footerTop < viewportHeight) {
+      bottomOffset.value = viewportHeight - footerTop + 4
+    } else {
+      bottomOffset.value = 24
+    }
+  }
 }
 
 onMounted(() => {

@@ -11,14 +11,14 @@
         'bg-luxury-light-bg/92 backdrop-blur-sm': !isDark
       }"
     >
-      <!-- 左裝飾線 -->
+      <!-- 左裝飾線（僅桌面顯示） -->
       <div
-        class="flex-1 h-px transition-colors"
+        class="hidden md:block flex-1 h-px transition-colors"
         :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }"
       />
 
       <!-- 品牌名 -->
-      <NuxtLink to="/" class="px-8 group">
+      <NuxtLink to="/" class="md:px-8 group shrink-0">
         <span
           class="font-serif text-xl lg:text-2xl tracking-[0.3em] uppercase transition-colors duration-300"
           :class="{
@@ -30,15 +30,18 @@
         </span>
       </NuxtLink>
 
-      <!-- 右側：裝飾線 + 控制列（正常 flex，線條止於控制列） -->
-      <div class="flex-1 flex items-center">
-        <!-- 右裝飾線（填滿剩餘空間） -->
+      <!-- 彈性間隔（行動版：把控制列推到右側；桌面：隱藏） -->
+      <div class="flex-1 md:hidden" />
+
+      <!-- 右側：裝飾線 + 控制列 -->
+      <div class="md:flex-1 flex items-center">
+        <!-- 右裝飾線（僅桌面顯示） -->
         <div
-          class="flex-1 h-px transition-colors"
+          class="hidden md:block flex-1 h-px transition-colors"
           :class="{ 'bg-luxury-warm-border': isDark, 'bg-luxury-light-border': !isDark }"
         />
         <!-- 控制列 -->
-        <div class="pl-8 flex items-center gap-6">
+        <div class="md:pl-8 shrink-0 flex items-center gap-4 md:gap-6">
           <!-- 亮暗主題切換按鈕 -->
           <ToggleThemeButton />
 
@@ -46,8 +49,8 @@
           <div
             v-if="userInfo"
             class="relative"
-            @mouseenter="showMenu = true"
-            @mouseleave="showMenu = false"
+            @mouseenter="onAvatarMouseEnter"
+            @mouseleave="onAvatarMouseLeave"
           >
             <img
               class="inline-block h-8 w-8 rounded-full object-cover object-center ring-1 cursor-pointer transition-all duration-300"
@@ -57,11 +60,29 @@
               }"
               :src="userInfo.avatar"
               alt="使用者選單"
+              @click.stop="toggleMenu"
             />
+            <!-- 箭頭提示：展開時旋轉向上 -->
+            <svg
+              class="absolute -bottom-3 left-1/2 -translate-x-1/2 w-3 h-3 transition-transform duration-300 pointer-events-none"
+              :class="{
+                'text-luxury-gold/70': isDark,
+                'text-luxury-gold-dark/60': !isDark,
+                'rotate-180': showMenu
+              }"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
 
             <!-- 下拉選單 -->
             <Transition name="menu">
-              <div v-if="showMenu" class="absolute right-0 top-full pt-2 w-52 z-50">
+              <div v-if="showMenu" class="absolute right-0 top-full pt-2 w-72 z-50" @click.stop>
                 <div
                   class="rounded overflow-hidden shadow-2xl border"
                   :class="{
@@ -71,7 +92,7 @@
                 >
                   <!-- 使用者資訊 -->
                   <div
-                    class="flex items-center px-4 py-3 border-b"
+                    class="flex items-center px-4 py-4 border-b"
                     :class="{
                       'border-luxury-warm-border': isDark,
                       'border-luxury-light-border': !isDark
@@ -79,16 +100,16 @@
                   >
                     <img
                       :src="userInfo.avatar"
-                      class="inline-block h-7 w-7 rounded-full object-cover object-center"
+                      class="inline-block h-10 w-10 rounded-full object-cover object-center"
                     />
                     <div class="ml-3 flex-grow overflow-hidden">
                       <p
-                        class="overflow-hidden text-ellipsis text-sm font-medium"
+                        class="overflow-hidden text-ellipsis text-base font-medium"
                         :class="{ 'text-luxury-cream': isDark, 'text-luxury-light-text': !isDark }"
                       >
                         {{ userInfo.nickname }}
                       </p>
-                      <p class="overflow-hidden text-ellipsis text-xs text-luxury-warm-gray mt-0.5">
+                      <p class="text-sm text-luxury-warm-gray mt-0.5 break-all">
                         {{ userInfo.email }}
                       </p>
                     </div>
@@ -193,6 +214,29 @@ const route = useRoute()
 const isDark = useDark()
 const queryClient = useQueryClient()
 const showMenu = ref(false)
+const isTouchDevice = ref(false)
+
+const closeMenuOutside = () => {
+  showMenu.value = false
+}
+const onAvatarMouseEnter = () => {
+  if (!isTouchDevice.value) showMenu.value = true
+}
+const onAvatarMouseLeave = () => {
+  if (!isTouchDevice.value) showMenu.value = false
+}
+const toggleMenu = () => {
+  showMenu.value = !showMenu.value
+}
+
+onMounted(() => {
+  isTouchDevice.value = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+  document.addEventListener('click', closeMenuOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', closeMenuOutside)
+})
 
 // ─── useMutation: 登出 ───────────────────────────────────────────────────────
 const { mutate: logout } = useMutation({
