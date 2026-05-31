@@ -49,8 +49,6 @@
           <div
             v-if="userInfo"
             class="relative"
-            @mouseenter="onAvatarMouseEnter"
-            @mouseleave="onAvatarMouseLeave"
           >
             <img
               class="inline-block h-8 w-8 rounded-full object-cover object-center ring-1 cursor-pointer transition-all duration-300"
@@ -214,23 +212,14 @@ const route = useRoute()
 const isDark = useDark()
 const queryClient = useQueryClient()
 const showMenu = ref(false)
-const isTouchDevice = ref(false)
-
 const closeMenuOutside = () => {
   showMenu.value = false
-}
-const onAvatarMouseEnter = () => {
-  if (!isTouchDevice.value) showMenu.value = true
-}
-const onAvatarMouseLeave = () => {
-  if (!isTouchDevice.value) showMenu.value = false
 }
 const toggleMenu = () => {
   showMenu.value = !showMenu.value
 }
 
 onMounted(() => {
-  isTouchDevice.value = 'ontouchstart' in window || navigator.maxTouchPoints > 0
   document.addEventListener('click', closeMenuOutside)
 })
 
