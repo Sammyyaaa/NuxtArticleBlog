@@ -1,4 +1,6 @@
-import jwt from 'jsonwebtoken'
+import { SignJWT } from 'jose'
+
+const secret = new TextEncoder().encode('JWT_SIGN_SECRET_PLEASE_REPLACE_WITH_YOUR_KEY')
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -20,13 +22,10 @@ export default defineEventHandler(async (event) => {
   const maxAge = 60 * 60 * 24 * 7
   const expires = Math.floor(Date.now() / 1000) + maxAge
 
-  const jwtToken = jwt.sign(
-    {
-      exp: expires,
-      data: jwtTokenPayload
-    },
-    'JWT_SIGN_SECRET_PLEASE_REPLACE_WITH_YOUR_KEY'
-  )
+  const jwtToken = await new SignJWT({ data: jwtTokenPayload })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime(expires)
+    .sign(secret)
 
   setCookie(event, 'access_token', jwtToken, {
     maxAge,

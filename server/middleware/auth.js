@@ -1,4 +1,6 @@
-import jwt from 'jsonwebtoken'
+import { jwtVerify } from 'jose'
+
+const secret = new TextEncoder().encode('JWT_SIGN_SECRET_PLEASE_REPLACE_WITH_YOUR_KEY')
 
 // 只要在新增、刪除文章中執行中間件權限驗證
 const urls = [
@@ -17,7 +19,7 @@ const urls = [
 ]
 
 // 所有 API 執行之前，都會處理這個檔案中間件的 tooken 驗證
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const requireVerify = urls.some((apiUrl) => {
     // 請求的 API 路由 和 urls 設置的 path 是否為匹配
     if (event.method === apiUrl.method) {
@@ -41,13 +43,15 @@ export default defineEventHandler((event) => {
 
   if (jwtToken) {
     try {
-      const { data: user } = jwt.verify(jwtToken, 'JWT_SIGN_SECRET_PLEASE_REPLACE_WITH_YOUR_KEY')
+      const {
+        payload: { data: user }
+      } = await jwtVerify(jwtToken, secret)
       // token 有資料時，添加在 event.context 中添加 auth 物件，其中包含 user 資料
       event.context.auth = {
         user
       }
     } catch (error) {
-      console.log(error)
+      console.log(error) // eslint-disable-line no-console
     }
   }
 })
