@@ -255,45 +255,10 @@
 </template>
 
 <script setup>
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
 
 const route = useRoute()
 const isDark = useDark()
-const uploadImgFileName = ref('')
-const tagInput = ref('')
-
-// ─── useQuery: 既有標籤 ──────────────────────────────────────────────────────
-// queryKey: ['tags']（與 create.vue、index.vue 共用快取）
-// 取得資料庫中已存在的標籤，顯示在標籤輸入框右側供快速點選。
-const { data: existingTags } = useQuery({
-  queryKey: ['tags'],
-  queryFn: () => $fetch('/api/tags')
-})
-
-const addTag = () => {
-  const tag = tagInput.value.trim()
-  if (tag && !articleData.tags.includes(tag)) {
-    articleData.tags = [...articleData.tags, tag]
-  }
-  tagInput.value = ''
-}
-
-const addExistingTag = (tag) => {
-  if (!articleData.tags.includes(tag)) {
-    articleData.tags = [...articleData.tags, tag]
-  }
-}
-
-const onTagKeydown = (e) => {
-  if (e.key === 'Enter' || e.key === ',') {
-    e.preventDefault()
-    addTag()
-  }
-}
-
-const removeTag = (tag) => {
-  articleData.tags = articleData.tags.filter((t) => t !== tag)
-}
 
 const articleData = reactive({
   title: '',
@@ -303,7 +268,14 @@ const articleData = reactive({
   img_filename: '',
   tags: []
 })
-const queryClient = useQueryClient()
+
+// ─── useQuery: 既有標籤 ──────────────────────────────────────────────────────
+// queryKey: ['tags']（與 create.vue、index.vue 共用快取）
+// 取得資料庫中已存在的標籤，顯示在標籤輸入框右側供快速點選。
+const { data: existingTags } = useQuery({
+  queryKey: ['tags'],
+  queryFn: () => $fetch('/api/tags')
+})
 
 // ─── useQuery: 文章資料（供編輯表單填入） ────────────────────────────────────
 // queryKey: ['article', id]（與 [id].vue 相同）
@@ -326,14 +298,18 @@ watch(
   { immediate: true }
 )
 
+const { tagInput, addTag, addExistingTag, removeTag, onTagKeydown } = useArticleTags(articleData)
+const { uploadImgFileName, handleUpload: _handleUpload } = useImageUpload(articleData)
+const { invalidateArticlesAndTags, prefetchHomePageData } = useQueryCacheSync()
+
+const handleUpload = () => _handleUpload('uploadEditInput')
+
 // ─── useMutation: 編輯文章 ───────────────────────────────────────────────────
 // 編輯成功後的快取策略（同 create.vue 邏輯，額外多清除單篇文章快取）：
 //
-// 1. removeQueries(['articles'])：清除首頁文章列表快取
-// 2. removeQueries(['article', id])：清除此篇文章快取，避免文章頁顯示舊內容
-// 3. removeQueries(['tags'])：清除標籤快取（標籤有異動時同步更新）
+// 1. invalidateArticlesAndTags(id)：清除首頁列表、此篇文章、標籤的快取
 //
-// 4. prefetchQuery（非阻塞，背景執行）
+// 2. prefetchHomePageData()（非阻塞，背景執行）
 //    在導頁到文章詳情頁的同時，背景預先 fetch 首頁的文章列表與標籤。
 //    用戶在文章頁停留的時間 = 背景 fetch 完成的時間，
 //    回首頁時資料已就緒，無載入延遲。
@@ -343,25 +319,14 @@ const { mutate: editArticle } = useMutation({
   onSuccess: (response) => {
     const input = document.getElementById('uploadEditInput')
     if (input) input.remove()
-    queryClient.removeQueries({ queryKey: ['articles'] })
-    queryClient.removeQueries({ queryKey: ['article', route.query.id] })
-    queryClient.removeQueries({ queryKey: ['tags'] })
-    // 背景預熱首頁資料：用戶在文章頁停留期間完成 fetch，回首頁即時顯示
-    queryClient.prefetchQuery({
-      queryKey: ['articles', { page: 1, sort: 'DESC', search: '', isSearching: false, tag: null }],
-      queryFn: () => $fetch('/api/articles', { query: { page: 1, pageSize: 10, sort: 'DESC' } })
-    })
-    queryClient.prefetchQuery({
-      queryKey: ['tags'],
-      queryFn: () => $fetch('/api/tags')
-    })
+    invalidateArticlesAndTags(route.query.id)
+    prefetchHomePageData()
     navigateTo({ name: 'articles-id', params: { id: response.id } })
   },
   onError: (error) => alert(error.value)
 })
 
 const handleSubmit = () => {
-  // 使用 FormData 包裝所有資料，包含上傳的圖片檔案
   const formData = new FormData()
   formData.append('title', articleData.title)
   formData.append('content', articleData.content)
@@ -372,30 +337,6 @@ const handleSubmit = () => {
   }
   formData.append('tags', articleData.tags.join(','))
   editArticle(formData)
-}
-
-const handleUpload = () => {
-  // 利用原生 JS 創造一個隱藏的 file input 元素
-  const uploadInput = document.createElement('input')
-  uploadInput.type = 'file'
-  uploadInput.id = 'uploadEditInput'
-  uploadInput.accept = 'image/*'
-  uploadInput.style.display = 'none'
-  document.body.appendChild(uploadInput)
-
-  // 為 input 綁定 change 事件
-  uploadInput.addEventListener('change', (event) => {
-    // 若使用 TypeScript，可寫：(event.target as HTMLInputElement)
-    const file = event.target.files ? event.target.files[0] : null
-    if (file) {
-      articleData.img = file
-      uploadImgFileName.value = articleData.img.name
-      // console.log('選擇的檔案：', articleData.img)
-    }
-  })
-
-  // 觸發 input 的 click 事件，顯示上傳檔案對話框
-  uploadInput.click()
 }
 
 // 進入建立文章頁面，觸發路由中間件判斷是否有登入

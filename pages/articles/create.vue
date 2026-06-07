@@ -243,10 +243,17 @@
 </template>
 
 <script setup>
-import { useMutation, useQueryClient, useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery } from '@tanstack/vue-query'
 
-const uploadImgFileName = ref('')
-const tagInput = ref('')
+const isDark = useDark()
+
+const articleData = reactive({
+  title: '',
+  content: '',
+  cover: '',
+  img: null,
+  tags: []
+})
 
 // ─── useQuery: 既有標籤 ──────────────────────────────────────────────────────
 // queryKey: ['tags']
@@ -257,79 +264,38 @@ const { data: existingTags } = useQuery({
   queryFn: () => $fetch('/api/tags')
 })
 
-const addTag = () => {
-  const tag = tagInput.value.trim()
-  if (tag && !articleData.tags.includes(tag)) {
-    articleData.tags = [...articleData.tags, tag]
-  }
-  tagInput.value = ''
-}
-
-const addExistingTag = (tag) => {
-  if (!articleData.tags.includes(tag)) {
-    articleData.tags = [...articleData.tags, tag]
-  }
-}
-
-const onTagKeydown = (e) => {
-  if (e.key === 'Enter' || e.key === ',') {
-    e.preventDefault()
-    addTag()
-  }
-}
-
-const removeTag = (tag) => {
-  articleData.tags = articleData.tags.filter((t) => t !== tag)
-}
-
-const articleData = reactive({
-  title: '',
-  content: '',
-  cover: '',
-  img: null,
-  tags: []
-})
-const isDark = useDark()
-const queryClient = useQueryClient()
+const { tagInput, addTag, addExistingTag, removeTag, onTagKeydown } = useArticleTags(articleData)
+const { uploadImgFileName, handleUpload } = useImageUpload(articleData)
+const { invalidateArticlesAndTags, prefetchHomePageData } = useQueryCacheSync()
 
 // ─── useMutation: 新增文章 ───────────────────────────────────────────────────
 // 新增成功後的快取策略：
 //
-// 1. removeQueries(['articles'])、removeQueries(['tags'])
+// 1. invalidateArticlesAndTags()
 //    完全清除舊快取（非 invalidate），確保首頁下次掛載時取得最新資料。
 //    使用 removeQueries 而非 invalidateQueries 的原因：
 //    invalidate 會保留舊資料並背景更新，用戶回首頁時仍先看到舊內容，有延遲感。
 //
-// 2. prefetchQuery（非阻塞，背景執行）
+// 2. prefetchHomePageData()（非阻塞，背景執行）
 //    清除快取後立即在背景開始 fetch 首頁第一頁的文章和標籤資料。
 //    這個 prefetch 在用戶瀏覽文章詳情頁的時間內完成，
 //    當用戶點「返回文章列表」時，資料已在快取中，首頁即時渲染，無需等待。
 //
 // 3. navigateTo → 文章詳情頁
-//    prefetchQuery 是非同步非阻塞，不影響導頁時機。
+//    prefetchHomePageData 是非同步非阻塞，不影響導頁時機。
 const { mutate: createArticle } = useMutation({
   mutationFn: (formData) => $fetch('/api/articles', { method: 'POST', body: formData }),
   onSuccess: (response) => {
     const input = document.getElementById('uploadInput')
     if (input) input.remove()
-    queryClient.removeQueries({ queryKey: ['articles'] })
-    queryClient.removeQueries({ queryKey: ['tags'] })
-    // 背景預熱首頁資料：用戶在文章頁停留期間完成 fetch，回首頁即時顯示
-    queryClient.prefetchQuery({
-      queryKey: ['articles', { page: 1, sort: 'DESC', search: '', isSearching: false, tag: null }],
-      queryFn: () => $fetch('/api/articles', { query: { page: 1, pageSize: 10, sort: 'DESC' } })
-    })
-    queryClient.prefetchQuery({
-      queryKey: ['tags'],
-      queryFn: () => $fetch('/api/tags')
-    })
+    invalidateArticlesAndTags()
+    prefetchHomePageData()
     navigateTo({ name: 'articles-id', params: { id: response.id } })
   },
   onError: (error) => alert(error.value)
 })
 
 const handleSubmit = () => {
-  // 使用 FormData 包裝所有資料，包含上傳的圖片檔案
   const formData = new FormData()
   formData.append('title', articleData.title)
   formData.append('content', articleData.content)
@@ -345,30 +311,6 @@ const handleSubmit = () => {
 definePageMeta({
   middleware: 'auth'
 })
-
-const handleUpload = () => {
-  // 利用原生 JS 創造一個隱藏的 file input 元素
-  const uploadInput = document.createElement('input')
-  uploadInput.type = 'file'
-  uploadInput.id = 'uploadInput'
-  uploadInput.accept = 'image/*'
-  uploadInput.style.display = 'none'
-  document.body.appendChild(uploadInput)
-
-  // 為 input 綁定 change 事件
-  uploadInput.addEventListener('change', (event) => {
-    // 若使用 TypeScript，可寫：(event.target as HTMLInputElement)
-    const file = event.target.files ? event.target.files[0] : null
-    if (file) {
-      articleData.img = file
-      uploadImgFileName.value = articleData.img.name
-      // console.log('選擇的檔案：', articleData.img)
-    }
-  })
-
-  // 觸發 input 的 click 事件，顯示上傳檔案對話框
-  uploadInput.click()
-}
 </script>
 
 <style>

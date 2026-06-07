@@ -182,7 +182,7 @@
                   class="font-mono text-xs uppercase tracking-[0.15em]"
                   :class="{ 'text-luxury-warm-gray': isDark, 'text-luxury-light-muted': !isDark }"
                 >
-                  {{ date2LocaleString(article.updated_at) }}
+                  {{ formatDateToTaipei(article.updated_at) }}
                 </time>
 
                 <div v-if="article.tags?.length" class="mt-2.5 flex flex-wrap gap-1.5">
@@ -296,12 +296,18 @@ import { useQuery } from '@tanstack/vue-query'
 const route = useRoute()
 const currentPage = computed(() => parseInt(route?.query?.page) || 1)
 const isDark = useDark()
-const searchArticle = ref('')
-const isSearching = ref(false)
-const sortAsc = ref(false)
-const activeSearch = ref('')
-const activeSort = ref('DESC')
-const activeTag = ref(null)
+const {
+  searchArticle,
+  isSearching,
+  sortAsc,
+  activeSearch,
+  activeSort,
+  activeTag,
+  toggleSort,
+  handleSearch
+} = useArticleFiltering()
+const { formatDateToTaipei } = useDateFormatter()
+const { stripMarkdown } = useMarkdownUtils()
 
 // ─── useQuery: 所有標籤 ──────────────────────────────────────────────────────
 const { data: allTags } = useQuery({
@@ -346,32 +352,4 @@ const {
     })
   }
 })
-
-const date2LocaleString = (date) => {
-  return new Date(date).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
-}
-
-const stripMarkdown = (text = '') =>
-  text
-    .replace(/#{1,6}\s/g, '')
-    .replace(/[*_`>![\]]/g, '')
-    .replace(/\n+/g, ' ')
-    .trim()
-
-const toggleSort = () => {
-  sortAsc.value = !sortAsc.value
-  activeSort.value = sortAsc.value ? 'ASC' : 'DESC'
-}
-
-const handleSearch = () => {
-  if (searchArticle.value === '') {
-    isSearching.value = false
-    activeSearch.value = ''
-    navigateTo('/', { replace: true })
-    return
-  }
-  activeSort.value = sortAsc.value ? 'ASC' : 'DESC'
-  activeSearch.value = searchArticle.value.trim()
-  isSearching.value = true
-}
 </script>

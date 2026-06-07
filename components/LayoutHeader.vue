@@ -46,10 +46,7 @@
           <ToggleThemeButton />
 
           <!-- 登入狀態：顯示使用者選單（hover 觸發） -->
-          <div
-            v-if="userInfo"
-            class="relative"
-          >
+          <div v-if="userInfo" class="relative">
             <img
               class="inline-block h-8 w-8 rounded-full object-cover object-center ring-1 cursor-pointer transition-all duration-300"
               :class="{
@@ -211,21 +208,7 @@ const { data: userInfo } = useQuery({
 const route = useRoute()
 const isDark = useDark()
 const queryClient = useQueryClient()
-const showMenu = ref(false)
-const closeMenuOutside = () => {
-  showMenu.value = false
-}
-const toggleMenu = () => {
-  showMenu.value = !showMenu.value
-}
-
-onMounted(() => {
-  document.addEventListener('click', closeMenuOutside)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', closeMenuOutside)
-})
+const { showMenu, toggleMenu } = useMenuToggle()
 
 // ─── useMutation: 登出 ───────────────────────────────────────────────────────
 const { mutate: logout } = useMutation({

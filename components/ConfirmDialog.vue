@@ -20,7 +20,9 @@
         }"
       >
         <!-- 頂部金色裝飾線 -->
-        <div class="h-px w-full bg-gradient-to-r from-transparent via-luxury-gold/50 to-transparent" />
+        <div
+          class="h-px w-full bg-gradient-to-r from-transparent via-luxury-gold/50 to-transparent"
+        />
 
         <div class="px-6 py-6">
           <!-- 標題 -->
@@ -47,8 +49,10 @@
               type="button"
               class="border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-colors duration-200"
               :class="{
-                'border-luxury-warm-gray/55 text-luxury-warm-gray hover:border-luxury-gold hover:text-luxury-gold': isDark,
-                'border-stone-400 text-stone-600 hover:border-luxury-gold-dark hover:text-luxury-gold-dark': !isDark
+                'border-luxury-warm-gray/55 text-luxury-warm-gray hover:border-luxury-gold hover:text-luxury-gold':
+                  isDark,
+                'border-stone-400 text-stone-600 hover:border-luxury-gold-dark hover:text-luxury-gold-dark':
+                  !isDark
               }"
               @click="$emit('cancel')"
             >

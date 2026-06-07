@@ -236,7 +236,7 @@
 </template>
 
 <script setup>
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
 import { marked } from 'marked'
 
 const route = useRoute()
@@ -271,7 +271,7 @@ const endDrag = () => {
   dragOffset.value = 0
 }
 const isDark = useDark()
-const queryClient = useQueryClient()
+const { invalidateArticlesAndTags } = useQueryCacheSync()
 
 // ─── useQuery: 登入使用者 ────────────────────────────────────────────────────
 // queryKey: ['whoami']（與 LayoutHeader 相同）
@@ -322,8 +322,7 @@ function onImageError(event) {
 const { mutate: deleteArticle } = useMutation({
   mutationFn: () => $fetch(`/api/articles/${route.params.id}`, { method: 'DELETE' }),
   onSuccess: () => {
-    queryClient.removeQueries({ queryKey: ['articles'] })
-    queryClient.removeQueries({ queryKey: ['tags'] })
+    invalidateArticlesAndTags()
     navigateTo('/')
   },
   onError: (err) => alert(err)
