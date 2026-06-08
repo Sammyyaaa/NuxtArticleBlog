@@ -41,7 +41,9 @@
               class="font-mono text-xs uppercase tracking-[0.15em]"
               :class="{ 'text-luxury-warm-gray': isDark, 'text-luxury-light-muted': !isDark }"
             >
-              {{ new Date(article.updated_at).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }) }}
+              {{
+                new Date(article.updated_at).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
+              }}
             </time>
             <!-- 編輯 / 刪除（管理員） -->
             <div v-if="userInfo?.id === 1" class="flex gap-4">
@@ -72,8 +74,9 @@
                 v-model="showDeleteDialog"
                 title="確定要刪除此篇文章嗎？"
                 message="刪除後將無法復原。"
+                :loading="isDeleting"
                 @confirm="deleteArticle"
-                @cancel="showDeleteDialog = false"
+                @cancel="!isDeleting && (showDeleteDialog = false)"
               />
             </div>
           </div>
@@ -271,7 +274,7 @@ const endDrag = () => {
   dragOffset.value = 0
 }
 const isDark = useDark()
-const { invalidateArticlesAndTags } = useQueryCacheSync()
+const { invalidateArticlesAndTags, prefetchHomePageData } = useQueryCacheSync()
 
 // ─── useQuery: 登入使用者 ────────────────────────────────────────────────────
 // queryKey: ['whoami']（與 LayoutHeader 相同）
@@ -319,10 +322,11 @@ function onImageError(event) {
 }
 
 // ─── useMutation: 刪除文章 ───────────────────────────────────────────────────
-const { mutate: deleteArticle } = useMutation({
+const { mutate: deleteArticle, isPending: isDeleting } = useMutation({
   mutationFn: () => $fetch(`/api/articles/${route.params.id}`, { method: 'DELETE' }),
-  onSuccess: () => {
+  onSuccess: async () => {
     invalidateArticlesAndTags()
+    await prefetchHomePageData()
     navigateTo('/')
   },
   onError: (err) => alert(err)

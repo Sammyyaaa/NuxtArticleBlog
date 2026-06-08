@@ -3,7 +3,7 @@
     <div
       v-if="modelValue"
       class="fixed inset-0 z-[200] flex items-center justify-center px-4"
-      @click.self="$emit('cancel')"
+      @click.self="!loading && $emit('cancel')"
     >
       <!-- 背景遮罩 -->
       <div
@@ -42,35 +42,66 @@
             {{ message }}
           </p>
 
-          <!-- 按鈕列 -->
+          <!-- 按鈕列 / 刪除中狀態 -->
           <div class="mt-6 flex justify-end gap-3">
-            <!-- 取消 -->
-            <button
-              type="button"
-              class="border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-colors duration-200"
-              :class="{
-                'border-luxury-warm-gray/55 text-luxury-warm-gray hover:border-luxury-gold hover:text-luxury-gold':
-                  isDark,
-                'border-stone-400 text-stone-600 hover:border-luxury-gold-dark hover:text-luxury-gold-dark':
-                  !isDark
-              }"
-              @click="$emit('cancel')"
-            >
-              取消
-            </button>
+            <template v-if="loading">
+              <span
+                class="flex items-center gap-2 font-mono text-xs"
+                :class="{ 'text-luxury-warm-gray': isDark, 'text-luxury-light-muted': !isDark }"
+              >
+                <svg
+                  class="h-3.5 w-3.5 animate-spin"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+                刪除中...
+              </span>
+            </template>
 
-            <!-- 確定 -->
-            <button
-              type="button"
-              class="border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-colors duration-200"
-              :class="{
-                'border-rose-500/70 text-rose-400 hover:bg-rose-500 hover:text-white': isDark,
-                'border-rose-400 text-rose-500 hover:bg-rose-500 hover:text-white': !isDark
-              }"
-              @click="$emit('confirm')"
-            >
-              確定
-            </button>
+            <template v-else>
+              <!-- 取消 -->
+              <button
+                type="button"
+                class="border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-colors duration-200"
+                :class="{
+                  'border-luxury-warm-gray/55 text-luxury-warm-gray hover:border-luxury-gold hover:text-luxury-gold':
+                    isDark,
+                  'border-stone-400 text-stone-600 hover:border-luxury-gold-dark hover:text-luxury-gold-dark':
+                    !isDark
+                }"
+                @click="$emit('cancel')"
+              >
+                取消
+              </button>
+
+              <!-- 確定 -->
+              <button
+                type="button"
+                class="border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-colors duration-200"
+                :class="{
+                  'border-rose-500/70 text-rose-400 hover:bg-rose-500 hover:text-white': isDark,
+                  'border-rose-400 text-rose-500 hover:bg-rose-500 hover:text-white': !isDark
+                }"
+                @click="$emit('confirm')"
+              >
+                確定
+              </button>
+            </template>
           </div>
         </div>
       </div>
@@ -93,6 +124,10 @@ defineProps({
   message: {
     type: String,
     default: ''
+  },
+  loading: {
+    type: Boolean,
+    default: false
   }
 })
 
