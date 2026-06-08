@@ -225,7 +225,8 @@
             </BlackAndWhiteButton>
             <button
               type="submit"
-              class="inline-flex items-center justify-center border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-all duration-200"
+              :disabled="isPublishing"
+              class="inline-flex items-center justify-center gap-2 border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60"
               :class="{
                 'border-luxury-gold text-luxury-gold hover:bg-luxury-gold hover:text-luxury-dark':
                   isDark,
@@ -233,7 +234,28 @@
                   !isDark
               }"
             >
-              發布
+              <svg
+                v-if="isPublishing"
+                class="h-3.5 w-3.5 animate-spin"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+              {{ isPublishing ? '發布中...' : '發布' }}
             </button>
           </div>
         </div>
@@ -283,13 +305,13 @@ const { invalidateArticlesAndTags, prefetchHomePageData } = useQueryCacheSync()
 //
 // 3. navigateTo → 文章詳情頁
 //    prefetchHomePageData 是非同步非阻塞，不影響導頁時機。
-const { mutate: createArticle } = useMutation({
+const { mutate: createArticle, isPending: isPublishing } = useMutation({
   mutationFn: (formData) => $fetch('/api/articles', { method: 'POST', body: formData }),
-  onSuccess: (response) => {
+  onSuccess: async (response) => {
     const input = document.getElementById('uploadInput')
     if (input) input.remove()
     invalidateArticlesAndTags()
-    prefetchHomePageData()
+    await prefetchHomePageData()
     navigateTo({ name: 'articles-id', params: { id: response.id } })
   },
   onError: (error) => alert(error.value)

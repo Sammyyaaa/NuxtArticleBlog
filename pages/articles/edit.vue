@@ -237,7 +237,8 @@
             </BlackAndWhiteButton>
             <button
               type="submit"
-              class="inline-flex items-center justify-center border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-all duration-200"
+              :disabled="isSaving"
+              class="inline-flex items-center justify-center gap-2 border font-mono text-xs uppercase tracking-[0.12em] px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60"
               :class="{
                 'border-luxury-gold text-luxury-gold hover:bg-luxury-gold hover:text-luxury-dark':
                   isDark,
@@ -245,7 +246,28 @@
                   !isDark
               }"
             >
-              儲存
+              <svg
+                v-if="isSaving"
+                class="h-3.5 w-3.5 animate-spin"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+              {{ isSaving ? '儲存中...' : '儲存' }}
             </button>
           </div>
         </div>
@@ -313,14 +335,14 @@ const handleUpload = () => _handleUpload('uploadEditInput')
 //    在導頁到文章詳情頁的同時，背景預先 fetch 首頁的文章列表與標籤。
 //    用戶在文章頁停留的時間 = 背景 fetch 完成的時間，
 //    回首頁時資料已就緒，無載入延遲。
-const { mutate: editArticle } = useMutation({
+const { mutate: editArticle, isPending: isSaving } = useMutation({
   mutationFn: (formData) =>
     $fetch(`/api/articles/${route.query.id}`, { method: 'PATCH', body: formData }),
-  onSuccess: (response) => {
+  onSuccess: async (response) => {
     const input = document.getElementById('uploadEditInput')
     if (input) input.remove()
     invalidateArticlesAndTags(route.query.id)
-    prefetchHomePageData()
+    await prefetchHomePageData()
     navigateTo({ name: 'articles-id', params: { id: response.id } })
   },
   onError: (error) => alert(error.value)
