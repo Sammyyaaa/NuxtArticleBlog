@@ -1,8 +1,8 @@
 import { jwtVerify } from 'jose'
 
-const secret = new TextEncoder().encode('JWT_SIGN_SECRET_PLEASE_REPLACE_WITH_YOUR_KEY')
-
 export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig()
+  const secret = new TextEncoder().encode(config.jwtSecret)
   // 接收 login.post.js API 登入設定 cookie 的 jwtToken
   const jwtToken = getCookie(event, 'access_token')
 

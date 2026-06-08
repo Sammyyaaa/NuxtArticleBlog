@@ -1,11 +1,11 @@
 import { SignJWT } from 'jose'
 
-const secret = new TextEncoder().encode('JWT_SIGN_SECRET_PLEASE_REPLACE_WITH_YOUR_KEY')
-
 export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig()
+  const secret = new TextEncoder().encode(config.jwtSecret)
   const body = await readBody(event)
 
-  if (!(body.account === 'accountUser' && body.password === '1234567')) {
+  if (!(body.account === config.adminAccount && body.password === config.adminPassword)) {
     throw createError({
       statusCode: 400,
       statusMessage: '登入失敗'

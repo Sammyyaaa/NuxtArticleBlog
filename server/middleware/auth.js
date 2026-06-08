@@ -1,7 +1,5 @@
 import { jwtVerify } from 'jose'
 
-const secret = new TextEncoder().encode('JWT_SIGN_SECRET_PLEASE_REPLACE_WITH_YOUR_KEY')
-
 // 只要在新增、刪除文章中執行中間件權限驗證
 const urls = [
   {
@@ -20,6 +18,8 @@ const urls = [
 
 // 所有 API 執行之前，都會處理這個檔案中間件的 tooken 驗證
 export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig()
+  const secret = new TextEncoder().encode(config.jwtSecret)
   const requireVerify = urls.some((apiUrl) => {
     // 請求的 API 路由 和 urls 設置的 path 是否為匹配
     if (event.method === apiUrl.method) {
