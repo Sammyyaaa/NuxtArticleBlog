@@ -82,25 +82,37 @@ queryKey: computed(() => [
 
 ### 快取更新策略
 
-**`removeQueries` vs `invalidateQueries`**
+**為何使用 `removeQueries` 而非 `invalidateQueries`**
 
-本專案統一使用 `removeQueries` 而非 `invalidateQueries`：
+新增/編輯/刪除後，用戶已離開首頁，首頁的 `useQuery` 已卸載，沒有元件在監聽：
 
-- `invalidateQueries`：標記為過期，但保留舊資料並背景更新 → 用戶返回首頁時先看到舊內容，有延遲感
-- `removeQueries`：完全清除快取 → 首頁掛載時直接 fetch 最新資料，無舊資料閃現
+- `invalidateQueries`：只把快取標記為過期，沒有元件監聽就不發請求 → 用戶回首頁才重新 fetch → 轉圈
+- `removeQueries`：完全清除快取，搭配 `prefetchQuery` 主動補入新資料 → 回首頁直接命中快取 → 無轉圈
 
-**`prefetchQuery` 背景預熱**
+> 快取存在全域 `QueryClient`，與元件生命週期無關。元件卸載後資料仍保留（預設 5 分鐘），重新掛載時直接讀取，不重複打 API。`invalidateQueries` 依賴「有元件監聽才觸發更新」，頁面切換時機對不上，故改用主動控制的方式。
 
-新增/編輯文章後，在導頁到文章詳情頁的同時，呼叫 `prefetchQuery` 在背景預先 fetch 首頁資料（非阻塞）。用戶瀏覽文章頁的時間即是 prefetch 完成的時間，返回首頁時資料已就緒，無載入等待：
+**`prefetchQuery` 預熱 + `await` 確保快取就緒**
+
+新增、編輯、刪除文章的 `onSuccess` 統一使用以下流程，`await prefetchHomePageData()` 等待首頁資料備妥後才導頁，確保回首頁時零等待：
 
 ```
-新增/編輯成功
-  ├─ removeQueries（清除舊快取）
-  ├─ prefetchQuery（背景 fetch 首頁資料）← 非阻塞
-  └─ navigateTo（文章詳情頁）
-          ↓ 用戶瀏覽中...
-  返回首頁 → 資料已在快取，即時顯示
+新增 / 編輯 / 刪除成功
+  ├─ removeQueries（清除 articles、tags 舊快取）
+  ├─ await prefetchHomePageData（等 articles + tags 兩支 API 完成）
+  └─ navigateTo（導頁）
+        ↓
+  首頁掛載 → useQuery 命中快取 → 直接渲染，不轉圈
 ```
+
+**操作中的 Loading 狀態**
+
+從 `useMutation` 取出 `isPending`，在操作期間給予用戶即時回饋，並防止重複送出：
+
+| 操作 | Loading 顯示位置 | 文字 |
+| ---- | ---------------- | ---- |
+| 新增文章 | 發布按鈕 | 發布中... |
+| 編輯文章 | 儲存按鈕 | 儲存中... |
+| 刪除文章 | ConfirmDialog 按鈕列 | 刪除中... |
 
 **SSR 支援**
 
